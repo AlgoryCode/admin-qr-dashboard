@@ -2,6 +2,7 @@
 
 import { Check, ChevronsUpDown, FolderKanban, Plus } from "lucide-react";
 import { useProject } from "@/context/project-context";
+import { getProjectStatusDisplay } from "@/lib/labels/tr";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -12,12 +13,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
-
-const statusLabels = {
-  active: "Aktif",
-  paused: "Duraklatıldı",
-  archived: "Arşivlendi",
-} as const;
 
 export function ProjectSelector() {
   const { projects, selectedProject, selectProject } = useProject();
@@ -62,7 +57,7 @@ export function ProjectSelector() {
             <div className="flex shrink-0 items-center gap-2">
               {project.status !== "active" && (
                 <Badge variant="secondary" className="text-[10px] px-1.5 py-0">
-                  {statusLabels[project.status]}
+                  {getProjectStatusDisplay(project.status).label}
                 </Badge>
               )}
               {selectedProject.id === project.id && (

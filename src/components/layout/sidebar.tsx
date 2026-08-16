@@ -4,7 +4,9 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   BarChart3,
+  Globe,
   LayoutDashboard,
+  MessageSquare,
   Package,
   Settings,
   Users,
@@ -16,7 +18,9 @@ const mainNav = [
   { href: "/", label: "Genel Bakış", icon: LayoutDashboard },
   { href: "/kullanicilar", label: "Kullanıcılar", icon: Users },
   { href: "/paketler", label: "Paket ve Ürünler", icon: Package },
+  { href: "/musteri-geri-bildirimleri", label: "Müşteri Geri Bildirimleri", icon: MessageSquare },
   { href: "/raporlar", label: "Raporlar", icon: BarChart3 },
+  { href: "/site-analitik", label: "Site Analitiği", icon: Globe },
 ];
 
 const secondaryNav = [

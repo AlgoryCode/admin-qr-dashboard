@@ -1,4 +1,10 @@
-FROM node:20-alpine AS base
+# syntax=docker/dockerfile:1
+
+# Production servers (Coolify/x86_64): linux/amd64
+# Mac build: docker build --platform linux/amd64 ...
+ARG TARGETPLATFORM=linux/amd64
+
+FROM --platform=$TARGETPLATFORM node:20-alpine AS base
 
 FROM base AS deps
 WORKDIR /app
@@ -10,8 +16,12 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-ARG API_BASE_URL=http://host.docker.internal:8055
+ARG API_BASE_URL=/api
+ARG API_PROXY_TARGET=https://prod.qrapi.algorycode.com
+ARG NEXT_PUBLIC_MEMBER_APP_URL=https://qr.algorycode.com
 ENV API_BASE_URL=$API_BASE_URL
+ENV API_PROXY_TARGET=$API_PROXY_TARGET
+ENV NEXT_PUBLIC_MEMBER_APP_URL=$NEXT_PUBLIC_MEMBER_APP_URL
 ENV NEXT_TELEMETRY_DISABLED=1
 
 RUN npm run build
@@ -23,9 +33,6 @@ ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV PORT=3000
 ENV HOSTNAME=0.0.0.0
-
-ARG API_BASE_URL=http://host.docker.internal:8055
-ENV API_BASE_URL=$API_BASE_URL
 
 RUN addgroup --system --gid 1001 nodejs \
   && adduser --system --uid 1001 nextjs

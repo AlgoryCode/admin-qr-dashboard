@@ -2,14 +2,9 @@
 
 import { ExternalLink, MapPin, QrCode, Server } from "lucide-react";
 import { useProject } from "@/context/project-context";
+import { getProjectStatusDisplay } from "@/lib/labels/tr";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-
-const statusConfig = {
-  active: { label: "Aktif", variant: "default" as const },
-  paused: { label: "Duraklatıldı", variant: "secondary" as const },
-  archived: { label: "Arşivlendi", variant: "outline" as const },
-};
 
 export function ProjectBanner() {
   const { projectDetail, isLoading } = useProject();
@@ -24,7 +19,7 @@ export function ProjectBanner() {
     );
   }
 
-  const status = statusConfig[project.status];
+  const status = getProjectStatusDisplay(project.status);
 
   return (
     <div className="space-y-3">

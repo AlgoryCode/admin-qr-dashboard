@@ -1,11 +1,11 @@
+import { SiteAnalyticsPanel } from "@/components/algory/site-analytics-panel";
 import { ProjectBanner } from "@/components/dashboard/project-banner";
-import { UsersSearchPanel } from "@/components/algory/users-search";
 
-export default function KullanicilarPage() {
+export default function SiteAnalitikPage() {
   return (
     <div className="space-y-8">
       <ProjectBanner />
-      <UsersSearchPanel />
+      <SiteAnalyticsPanel />
     </div>
   );
 }

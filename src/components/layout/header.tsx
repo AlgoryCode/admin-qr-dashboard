@@ -16,6 +16,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/context/auth-context";
+import { getUserRoleLabel } from "@/lib/labels/tr";
 import { getUserDisplayName, getUserInitials } from "@/lib/auth/session";
 
 export function Header() {
@@ -71,7 +72,7 @@ export function Header() {
                 </span>
                 {user?.roles?.includes("ROLE_ADMIN") && (
                   <span className="text-[10px] font-medium uppercase tracking-wide text-emerald-600 dark:text-emerald-400">
-                    ADMIN
+                    {getUserRoleLabel("ADMIN")}
                   </span>
                 )}
               </div>

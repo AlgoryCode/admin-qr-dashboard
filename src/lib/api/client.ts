@@ -36,7 +36,7 @@ async function tryRefreshTokens(): Promise<boolean> {
 
   try {
     const data = await rawRequest<{ accessToken: string; refreshToken: string }>(
-      "/auth/refresh",
+      "/dashboard/auth/refresh",
       {
         method: "POST",
         body: JSON.stringify({ refreshToken }),
@@ -95,7 +95,12 @@ export async function apiRequest<T>(
 
   const res = await fetch(`${API_BASE}${path}`, { ...options, headers });
 
-  if (res.status === 401 && !retried && !path.startsWith("/auth/")) {
+  if (
+    res.status === 401 &&
+    !retried &&
+    !path.startsWith("/auth/") &&
+    !path.startsWith("/dashboard/auth/")
+  ) {
     if (!refreshPromise) {
       refreshPromise = tryRefreshTokens().finally(() => {
         refreshPromise = null;
