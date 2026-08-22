@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const HOP_BY_HOP = new Set([
+const STRIP_REQUEST_HEADERS = new Set([
   "connection",
   "keep-alive",
   "proxy-authenticate",
@@ -12,12 +12,21 @@ const HOP_BY_HOP = new Set([
   "host",
   "content-length",
   "cookie",
+  "origin",
+  "referer",
+  "sec-fetch-site",
+  "sec-fetch-mode",
+  "sec-fetch-dest",
+  "sec-fetch-user",
+  "sec-ch-ua",
+  "sec-ch-ua-mobile",
+  "sec-ch-ua-platform",
 ]);
 
 function proxyTarget(): string {
-  return (
-    process.env.API_PROXY_TARGET ?? "http://localhost:8055"
-  ).replace(/\/$/, "");
+  const raw = process.env.API_PROXY_TARGET?.trim();
+  const target = raw || "http://localhost:8055";
+  return target.replace(/\/$/, "");
 }
 
 async function proxy(req: NextRequest, path: string[]): Promise<Response> {
@@ -27,15 +36,17 @@ async function proxy(req: NextRequest, path: string[]): Promise<Response> {
 
   const headers = new Headers();
   req.headers.forEach((value, key) => {
-    if (!HOP_BY_HOP.has(key.toLowerCase())) {
+    if (!STRIP_REQUEST_HEADERS.has(key.toLowerCase())) {
       headers.set(key, value);
     }
   });
+  headers.set("accept", "application/json");
 
   const init: RequestInit = {
     method: req.method,
     headers,
     redirect: "manual",
+    cache: "no-store",
   };
 
   if (req.method !== "GET" && req.method !== "HEAD") {
@@ -55,7 +66,13 @@ async function proxy(req: NextRequest, path: string[]): Promise<Response> {
   const responseHeaders = new Headers();
   upstream.headers.forEach((value, key) => {
     const lower = key.toLowerCase();
-    if (lower === "transfer-encoding" || lower === "connection") return;
+    if (
+      lower === "transfer-encoding" ||
+      lower === "connection" ||
+      lower.startsWith("access-control-")
+    ) {
+      return;
+    }
     responseHeaders.set(key, value);
   });
 

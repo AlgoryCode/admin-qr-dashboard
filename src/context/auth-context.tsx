@@ -87,10 +87,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         clearSession();
         setUser(null);
 
-        if (err instanceof ApiError && err.status === 403) {
-          throw new Error("Bu panele yalnızca ADMIN rolüne sahip kullanıcılar erişebilir.");
-        }
-
         if (err instanceof ApiError) {
           throw new Error(err.message);
         }
