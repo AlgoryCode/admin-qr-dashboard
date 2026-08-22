@@ -7,9 +7,10 @@ import {
   setTokens,
 } from "@/lib/auth/session";
 
-export const API_BASE = (
-  process.env.API_BASE_URL ?? "http://localhost:8055"
-).replace(/\/$/, "");
+export const API_BASE = (process.env.API_BASE_URL ?? "/api").replace(
+  /\/$/,
+  ""
+);
 
 export class ApiError extends Error {
   status: number;

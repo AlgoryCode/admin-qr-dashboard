@@ -8,7 +8,7 @@ export default function SettingsPage() {
       <div className="grid gap-4 md:grid-cols-2">
         {[
           { title: "Genel Ayarlar", desc: "Platform adı, logo ve görünürlük ayarları" },
-          { title: "Ödeme Entegrasyonu", desc: "Stripe, iyzico ve fatura yapılandırması" },
+          { title: "Ödeme Entegrasyonu", desc: "PayTR ve fatura yapılandırması" },
           { title: "QR Ayarları", desc: "Varsayılan QR stili, domain ve yönlendirme" },
           { title: "Bildirimler", desc: "E-posta ve webhook bildirim tercihleri" },
         ].map((item) => (

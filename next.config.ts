@@ -1,6 +1,12 @@
 import type { NextConfig } from "next";
 
-const apiBaseUrl = process.env.API_BASE_URL ?? "http://localhost:8055";
+const configuredApiBase = process.env.API_BASE_URL ?? "/api";
+const isRelativeApiBase = configuredApiBase.startsWith("/");
+const apiBaseUrl = isRelativeApiBase ? configuredApiBase.replace(/\/$/, "") || "/api" : "/api";
+const proxyTarget = (
+  process.env.API_PROXY_TARGET ??
+  (isRelativeApiBase ? "http://localhost:8055" : configuredApiBase)
+).replace(/\/$/, "");
 const memberAppUrl = process.env.NEXT_PUBLIC_MEMBER_APP_URL ?? "http://localhost:3000";
 
 const nextConfig: NextConfig = {
@@ -10,15 +16,10 @@ const nextConfig: NextConfig = {
     NEXT_PUBLIC_MEMBER_APP_URL: memberAppUrl,
   },
   async rewrites() {
-    if (!apiBaseUrl.startsWith("/")) return [];
-
-    const proxyTarget =
-      process.env.API_PROXY_TARGET ?? "http://localhost:8055";
-
     return [
       {
         source: `${apiBaseUrl}/:path*`,
-        destination: `${proxyTarget.replace(/\/$/, "")}/:path*`,
+        destination: `${proxyTarget}/:path*`,
       },
     ];
   },
