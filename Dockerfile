@@ -16,11 +16,7 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-ARG API_BASE_URL=/api
-ARG API_PROXY_TARGET=https://prod.qrapi.algorycode.com
 ARG NEXT_PUBLIC_MEMBER_APP_URL=https://qr.algorycode.com
-ENV API_BASE_URL=$API_BASE_URL
-ENV API_PROXY_TARGET=$API_PROXY_TARGET
 ENV NEXT_PUBLIC_MEMBER_APP_URL=$NEXT_PUBLIC_MEMBER_APP_URL
 ENV NEXT_TELEMETRY_DISABLED=1
 
@@ -33,6 +29,7 @@ ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV PORT=3000
 ENV HOSTNAME=0.0.0.0
+ENV API_PROXY_TARGET=https://prod.qrapi.algorycode.com
 
 RUN addgroup --system --gid 1001 nodejs \
   && adduser --system --uid 1001 nextjs

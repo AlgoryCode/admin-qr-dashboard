@@ -7,10 +7,7 @@ import {
   setTokens,
 } from "@/lib/auth/session";
 
-export const API_BASE = (process.env.API_BASE_URL ?? "/api").replace(
-  /\/$/,
-  ""
-);
+export const API_BASE = "/api";
 
 export class ApiError extends Error {
   status: number;
