@@ -220,3 +220,62 @@ export interface ExtendTrialResponse {
   expiresAt: string;
   daysAdded: number;
 }
+
+export type PaymentStatus = "INITIATED" | "SUCCESS" | "FAILURE" | "REFUNDED";
+
+export interface PaymentSummaryResponse {
+  conversationId: string;
+  paymentId?: string | null;
+  paymentTransactionId?: string | null;
+  accountId?: string | null;
+  userId?: number | null;
+  buyerEmail?: string | null;
+  buyerName?: string | null;
+  serviceName?: string | null;
+  sourceReferenceId?: string | null;
+  price?: number | null;
+  paidPrice?: number | null;
+  refundedAmount?: number | null;
+  remainingAmount?: number | null;
+  currency?: string | null;
+  status: string;
+  paymentType?: string | null;
+  paymentStyle?: string | null;
+  verificationOnly?: boolean;
+  errorCode?: string | null;
+  errorMessage?: string | null;
+  purchaseId?: number | null;
+  packageName?: string | null;
+  refundEligible?: boolean;
+  createdAt?: string | null;
+  updatedAt?: string | null;
+}
+
+export interface PaymentDetailResponse extends PaymentSummaryResponse {
+  basketId?: string | null;
+  bankInstallmentCount?: number | null;
+  subscriptionId?: string | null;
+  billingCycleNumber?: number | null;
+  packageCode?: string | null;
+}
+
+export interface PaymentPageResponse {
+  content: PaymentSummaryResponse[];
+  page: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
+  hasNext: boolean;
+}
+
+export interface PaymentRefundRequest {
+  amount?: number;
+}
+
+export interface PaymentRefundResponse {
+  conversationId: string;
+  paymentTransactionId?: string | null;
+  refundedPrice?: number | null;
+  status?: string | null;
+  purchaseId?: number | null;
+}

@@ -76,12 +76,33 @@ const paymentFieldLabels: Record<string, string> = {
   UNPAID: "Ödenmedi",
 };
 
+const paymentStatusMap: Record<string, StatusDisplay> = {
+  INITIATED: { label: "Başlatıldı", variant: "outline" },
+  SUCCESS: { label: "Başarılı", variant: "default" },
+  FAILURE: { label: "Başarısız", variant: "destructive" },
+  REFUNDED: { label: "İade edildi", variant: "secondary" },
+};
+
+const paymentTypeLabels: Record<string, string> = {
+  DIRECT: "Direct API",
+  CHECKOUT_FORM: "Checkout Form",
+  THREE_DS: "3D Secure",
+};
+
 export function getPurchaseStatusDisplay(status: string): StatusDisplay {
   return getStatusDisplay(status, purchaseStatusMap);
 }
 
 export function getInstallmentStatusDisplay(status: string): StatusDisplay {
   return getStatusDisplay(status, installmentStatusMap);
+}
+
+export function getPaymentStatusDisplay(status: string): StatusDisplay {
+  return getStatusDisplay(status, paymentStatusMap);
+}
+
+export function getPaymentTypeLabel(value: string): string {
+  return getLabel(value, paymentTypeLabels);
 }
 
 export function getUserRoleLabel(role: string): string {
