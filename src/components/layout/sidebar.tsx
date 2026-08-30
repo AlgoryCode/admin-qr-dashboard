@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   BarChart3,
+  CreditCard,
   Globe,
   LayoutDashboard,
   MessageSquare,
@@ -17,6 +18,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 const mainNav = [
   { href: "/", label: "Genel Bakış", icon: LayoutDashboard },
   { href: "/kullanicilar", label: "Kullanıcılar", icon: Users },
+  { href: "/odemeler", label: "Ödemeler", icon: CreditCard },
   { href: "/paketler", label: "Paket ve Ürünler", icon: Package },
   { href: "/musteri-geri-bildirimleri", label: "Müşteri Geri Bildirimleri", icon: MessageSquare },
   { href: "/raporlar", label: "Raporlar", icon: BarChart3 },
@@ -31,7 +33,10 @@ export function Sidebar() {
   const pathname = usePathname();
 
   const renderNavItem = (item: (typeof mainNav)[0]) => {
-    const isActive = pathname === item.href;
+    const isActive =
+      item.href === "/"
+        ? pathname === "/"
+        : pathname === item.href || pathname.startsWith(`${item.href}/`);
     return (
       <Link
         key={item.href}
