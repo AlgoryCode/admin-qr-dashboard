@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
-import { getPurchaseSummary } from "@/lib/api/purchases";
+import { ArrowLeft, PauseCircle, PlusCircle } from "lucide-react";
+import { deactivateSubscription, extendSubscription, getPurchaseSummary } from "@/lib/api/purchases";
 import { ApiError } from "@/lib/api/client";
 import type { PurchaseSummaryResponse } from "@/lib/api/types";
 import {
@@ -58,6 +58,8 @@ export function PurchaseDetailPanel({
   const [summary, setSummary] = useState<PurchaseSummaryResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [actionMessage, setActionMessage] = useState<string | null>(null);
+  const [isActing, setIsActing] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -110,6 +112,38 @@ export function PurchaseDetailPanel({
 
   const purchaseStatus = getPurchaseStatusDisplay(summary.status);
 
+  async function handleDeactivate() {
+    if (!window.confirm("Bu paketin abonelik erişimi pasifleştirilsin mi?")) return;
+    setIsActing(true);
+    setActionMessage(null);
+    try {
+      await deactivateSubscription(purchaseId);
+      setActionMessage("Paket pasifleştirildi.");
+      setSummary(await getPurchaseSummary(purchaseId));
+    } catch (err) {
+      setActionMessage(err instanceof Error ? err.message : "Paket pasifleştirilemedi.");
+    } finally {
+      setIsActing(false);
+    }
+  }
+
+  async function handleExtend() {
+    const value = window.prompt("Kaç gün uzatılsın?", "30");
+    const days = Number(value);
+    if (!Number.isInteger(days) || days < 1 || days > 3650) return;
+    setIsActing(true);
+    setActionMessage(null);
+    try {
+      await extendSubscription(purchaseId, days);
+      setActionMessage(`Paket ${days} gün uzatıldı.`);
+      setSummary(await getPurchaseSummary(purchaseId));
+    } catch (err) {
+      setActionMessage(err instanceof Error ? err.message : "Paket uzatılamadı.");
+    } finally {
+      setIsActing(false);
+    }
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-3">
@@ -133,6 +167,24 @@ export function PurchaseDetailPanel({
           <Badge variant="secondary">Kullanılamaz</Badge>
         )}
       </div>
+
+      <Card className="border-border/60 bg-card/50">
+        <CardHeader>
+          <CardTitle className="text-base">Abonelik Yönetimi</CardTitle>
+          <CardDescription>Bu kullanıcının paket erişimini ve vade tarihini yönetin.</CardDescription>
+        </CardHeader>
+        <CardContent className="flex flex-wrap items-center gap-3">
+          <Button variant="destructive" disabled={isActing || !summary.usable} onClick={() => void handleDeactivate()}>
+            <PauseCircle />
+            Paketi pasifleştir
+          </Button>
+          <Button variant="outline" disabled={isActing} onClick={() => void handleExtend()}>
+            <PlusCircle />
+            Vade uzat
+          </Button>
+          {actionMessage ? <p className="text-sm text-muted-foreground">{actionMessage}</p> : null}
+        </CardContent>
+      </Card>
 
       <Card className="border-border/60 bg-card/50">
         <CardHeader>
