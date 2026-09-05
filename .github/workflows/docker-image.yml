@@ -46,3 +46,15 @@ jobs:
             ${{ env.IMAGE_BASE }}:staging
           build-args: |
             NEXT_PUBLIC_MEMBER_APP_URL=https://qr.algorycode.com
+
+      - name: Coolify Image Tagini Commit Hash Olarak Güncelle
+        run: |
+          curl -f -X PATCH "http://185.184.210.52:8000/api/v1/applications/m10nhwf476xdvrj11qdne96s" \
+            -H "Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -d "{\"docker_registry_image_tag\": \"${{ env.IMAGE_TAG }}\"}"
+
+      - name: Staging Deployunu Tetikle
+        run: |
+          curl -f "http://185.184.210.52:8000/api/v1/deploy?uuid=m10nhwf476xdvrj11qdne96s&force=false" \
+            -H "Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}"
