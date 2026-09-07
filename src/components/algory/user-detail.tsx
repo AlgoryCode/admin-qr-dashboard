@@ -88,7 +88,7 @@ export function UserDetailPanel({ userId }: { userId: number }) {
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [isImpersonating, setIsImpersonating] = useState(false);
   const [impersonateError, setImpersonateError] = useState<string | null>(null);
-  const [trialDays, setTrialDays] = useState("30");
+  const [trialDays, setTrialDays] = useState("15");
   const [isExtendingTrial, setIsExtendingTrial] = useState(false);
   const [trialError, setTrialError] = useState<string | null>(null);
   const [trialSuccess, setTrialSuccess] = useState<string | null>(null);
