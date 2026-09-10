@@ -3,19 +3,13 @@ import type { PurchaseResponse, PurchaseSummaryResponse } from "./types";
 
 export function getPurchaseSummary(purchaseId: number) {
   return apiRequest<PurchaseSummaryResponse>(
-    `/admin/purchases/${purchaseId}/summary`
+    `/admin/purchases/${purchaseId}`
   );
 }
 
-export function deactivateSubscription(purchaseId: number) {
-  return apiRequest<PurchaseResponse>(`/admin/purchases/${purchaseId}/subscription/deactivate`, {
-    method: "POST",
-  });
-}
-
 export function extendSubscription(purchaseId: number, days: number) {
-  return apiRequest<PurchaseResponse>(`/admin/purchases/${purchaseId}/subscription/extend`, {
-    method: "POST",
+  return apiRequest<PurchaseResponse>(`/admin/purchases/${purchaseId}/subscription`, {
+    method: "PATCH",
     body: JSON.stringify({ days }),
   });
 }

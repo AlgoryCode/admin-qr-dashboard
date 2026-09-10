@@ -34,7 +34,7 @@ async function tryRefreshTokens(): Promise<boolean> {
 
   try {
     const data = await rawRequest<{ accessToken: string; refreshToken: string }>(
-      "/dashboard/auth/refresh",
+      "/admin/auth/sessions/refresh",
       {
         method: "POST",
         body: JSON.stringify({ refreshToken }),
@@ -97,7 +97,7 @@ export async function apiRequest<T>(
     res.status === 401 &&
     !retried &&
     !path.startsWith("/auth/") &&
-    !path.startsWith("/dashboard/auth/")
+    !path.startsWith("/admin/auth/")
   ) {
     if (!refreshPromise) {
       refreshPromise = tryRefreshTokens().finally(() => {

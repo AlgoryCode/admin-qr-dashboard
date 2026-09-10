@@ -53,7 +53,7 @@ export function listSiteVisits(page = 0, size = DEFAULT_PAGE_SIZE, days?: number
   });
   if (days != null) search.set("days", String(days));
 
-  return apiRequest<SiteVisitPageResponse>(`/admin/analytics/site-visits?${search.toString()}`);
+  return apiRequest<SiteVisitPageResponse>(`/admin/site-visits?${search.toString()}`);
 }
 
 export function getSiteAnalyticsSummary(days?: number) {
@@ -62,6 +62,6 @@ export function getSiteAnalyticsSummary(days?: number) {
   const query = search.toString();
 
   return apiRequest<SiteAnalyticsSummary>(
-    `/admin/analytics/site-visits/summary${query ? `?${query}` : ""}`,
+    `/admin/site-visits/summary${query ? `?${query}` : ""}`,
   );
 }

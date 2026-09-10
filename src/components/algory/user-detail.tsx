@@ -8,6 +8,7 @@ import { getUser, impersonateUser, extendUserTrial, updateUser } from "@/lib/api
 import { ApiError } from "@/lib/api/client";
 import type { UserDetailResponse } from "@/lib/api/types";
 import { openMemberImpersonation } from "@/lib/member-app";
+import { UserCredentialsCard } from "@/components/algory/user-credentials-card";
 import {
   getAuthProviderLabel,
   getPurchaseStatusDisplay,
@@ -331,14 +332,15 @@ export function UserDetailPanel({ userId }: { userId: number }) {
 
               <div className="space-y-1.5">
                 <Label htmlFor="user-email">E-posta</Label>
-                <Input
-                  id="user-email"
-                  type="email"
-                  value={form.email}
-                  onChange={(e) => setForm({ ...form, email: e.target.value })}
-                  required
-                  autoComplete="off"
-                />
+                  <Input
+                    id="user-email"
+                    type="email"
+                    value={form.email}
+                    onChange={(e) => setForm({ ...form, email: e.target.value })}
+                    required
+                    autoComplete="off"
+                    disabled={user.provider !== "BASIC"}
+                  />
               </div>
 
               <div className="space-y-1.5">
@@ -405,6 +407,13 @@ export function UserDetailPanel({ userId }: { userId: number }) {
         </Card>
 
         <div className="space-y-4 min-w-0">
+          <UserCredentialsCard
+            user={user}
+            onUserUpdated={(updated) => {
+              setUser(updated);
+              setForm(toFormState(updated));
+            }}
+          />
           <Card className="border-border/60 bg-card/50">
             <CardContent className="grid grid-cols-2 gap-4 py-4 sm:grid-cols-4">
               <StatItem label="QR Sayısı" value={user.qrCount} />
@@ -415,9 +424,9 @@ export function UserDetailPanel({ userId }: { userId: number }) {
                 value={
                   activeTrial
                     ? `Aktif (${formatDateShort(activeTrial.expiresAt)} bitiş)`
-                    : user.trialEndDate
-                      ? `Kullanıldı (${new Date(user.trialEndDate).toLocaleDateString("tr-TR")})`
-                      : user.trialUsed
+                    : user.trialExpiresAt
+                      ? `Kullanıldı (${formatDateShort(user.trialExpiresAt)})`
+                      : user.trialConsumed
                         ? "Evet"
                         : "Hayır"
                 }

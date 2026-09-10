@@ -45,15 +45,15 @@ export function listPlatformFeedback(
   if (params?.status) search.set("status", params.status);
   if (params?.q?.trim()) search.set("q", params.q.trim());
 
-  return apiRequest<PlatformFeedbackPageResponse>(`/admin/platform-feedback?${search.toString()}`);
+  return apiRequest<PlatformFeedbackPageResponse>(`/admin/platform-feedbacks?${search.toString()}`);
 }
 
 export function getPlatformFeedback(id: number) {
-  return apiRequest<PlatformFeedbackItem>(`/admin/platform-feedback/${id}`);
+  return apiRequest<PlatformFeedbackItem>(`/admin/platform-feedbacks/${id}`);
 }
 
 export function updatePlatformFeedback(id: number, data: PlatformFeedbackUpdateRequest) {
-  return apiRequest<PlatformFeedbackItem>(`/admin/platform-feedback/${id}`, {
+  return apiRequest<PlatformFeedbackItem>(`/admin/platform-feedbacks/${id}`, {
     method: "PATCH",
     body: JSON.stringify(data),
   });
