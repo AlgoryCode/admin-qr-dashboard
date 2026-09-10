@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ArrowLeft, PauseCircle, PlusCircle } from "lucide-react";
-import { deactivateSubscription, extendSubscription, getPurchaseSummary } from "@/lib/api/purchases";
+import { extendSubscription, getPurchaseSummary } from "@/lib/api/purchases";
+import { deactivateUserPackage } from "@/lib/api/users";
 import { ApiError } from "@/lib/api/client";
 import type { PurchaseSummaryResponse } from "@/lib/api/types";
 import {
@@ -113,11 +114,11 @@ export function PurchaseDetailPanel({
   const purchaseStatus = getPurchaseStatusDisplay(summary.status);
 
   async function handleDeactivate() {
-    if (!window.confirm("Bu paketin abonelik erişimi pasifleştirilsin mi?")) return;
+    if (!window.confirm("Bu kullanıcının aktif paket erişimi pasifleştirilsin mi?")) return;
     setIsActing(true);
     setActionMessage(null);
     try {
-      await deactivateSubscription(purchaseId);
+      await deactivateUserPackage(userId);
       setActionMessage("Paket pasifleştirildi.");
       setSummary(await getPurchaseSummary(purchaseId));
     } catch (err) {
@@ -189,9 +190,6 @@ export function PurchaseDetailPanel({
       <Card className="border-border/60 bg-card/50">
         <CardHeader>
           <CardTitle className="text-base">Satın Alım Bilgisi</CardTitle>
-          <CardDescription>
-            API: GET /admin/purchases/{summary.purchaseId}/summary
-          </CardDescription>
         </CardHeader>
         <CardContent className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <DetailItem label="Tutar" value={`${summary.price} ${summary.currency}`} />

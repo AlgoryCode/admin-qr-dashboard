@@ -1,5 +1,16 @@
 import { apiRequest } from "./client";
-import type { ExtendTrialRequest, ExtendTrialResponse, ImpersonateResponse, UserDetailResponse, UserPageResponse, UserUpdateRequest } from "./types";
+import type {
+  EndTrialResponse,
+  ExtendTrialRequest,
+  ExtendTrialResponse,
+  ImpersonateResponse,
+  PackageLifecycleResponse,
+  PasswordResetResponse,
+  ReactivatePackageRequest,
+  UserDetailResponse,
+  UserPageResponse,
+  UserUpdateRequest,
+} from "./types";
 
 const DEFAULT_PAGE_SIZE = 10;
 
@@ -23,21 +34,54 @@ export function getUser(id: number) {
 
 export function updateUser(id: number, data: UserUpdateRequest) {
   return apiRequest<UserDetailResponse>(`/admin/users/${id}`, {
-    method: "PUT",
+    method: "PATCH",
     body: JSON.stringify(data),
   });
 }
 
 export function impersonateUser(id: number) {
-  return apiRequest<ImpersonateResponse>(`/admin/users/${id}/impersonate`, {
+  return apiRequest<ImpersonateResponse>(`/admin/users/${id}/impersonation-sessions`, {
     method: "POST",
   });
 }
 
 export function extendUserTrial(id: number, data: ExtendTrialRequest) {
-  return apiRequest<ExtendTrialResponse>(`/admin/users/${id}/trial/extend`, {
-    method: "POST",
+  return apiRequest<ExtendTrialResponse>(`/admin/users/${id}/trial`, {
+    method: "PATCH",
     body: JSON.stringify(data),
+  });
+}
+
+export function endUserTrial(id: number) {
+  return apiRequest<EndTrialResponse>(`/admin/users/${id}/trial`, {
+    method: "PATCH",
+    body: JSON.stringify({ status: "ENDED" }),
+  });
+}
+
+export function deactivateUserPackage(id: number) {
+  return apiRequest<PackageLifecycleResponse>(`/admin/users/${id}/package`, {
+    method: "PATCH",
+    body: JSON.stringify({ status: "INACTIVE" }),
+  });
+}
+
+export function reactivateUserPackage(id: number, data: ReactivatePackageRequest) {
+  return apiRequest<PackageLifecycleResponse>(`/admin/users/${id}/package`, {
+    method: "PATCH",
+    body: JSON.stringify({ status: "ACTIVE", days: data.days }),
+  });
+}
+
+export function sendUserEmailVerification(id: number) {
+  return apiRequest<void>(`/admin/users/${id}/email-verifications`, {
+    method: "POST",
+  });
+}
+
+export function resetUserPassword(id: number) {
+  return apiRequest<PasswordResetResponse>(`/admin/users/${id}/password-resets`, {
+    method: "POST",
   });
 }
 

@@ -9,7 +9,6 @@ import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -38,9 +37,6 @@ export function ProductsTable() {
         <CardHeader className="flex flex-row items-center justify-between">
           <div>
             <CardTitle className="text-base">Ürünler</CardTitle>
-            <CardDescription>
-              API: GET/POST/PUT /admin/products
-            </CardDescription>
           </div>
           <CreateProductButton />
         </CardHeader>
@@ -119,9 +115,6 @@ export function PackagesTable() {
         <CardHeader className="flex flex-row items-center justify-between">
           <div>
             <CardTitle className="text-base">Paketler</CardTitle>
-            <CardDescription>
-              API: GET/POST/PUT /admin/packages — ürünler items[] ile eklenir
-            </CardDescription>
           </div>
           <CreatePackageButton />
         </CardHeader>

@@ -52,7 +52,7 @@ export function refundPayment(
   body?: PaymentRefundRequest
 ) {
   return apiRequest<PaymentRefundResponse>(
-    `/admin/payments/${encodeURIComponent(conversationId)}/refund`,
+    `/admin/payments/${encodeURIComponent(conversationId)}/refunds`,
     {
       method: "POST",
       body: JSON.stringify(body ?? {}),

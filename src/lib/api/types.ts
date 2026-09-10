@@ -187,8 +187,9 @@ export interface UserPageResponse {
 
 export interface UserDetailResponse extends UserSummaryResponse {
   updatedAt: string;
-  trialUsed: boolean;
-  trialEndDate?: string | null;
+  trialLifecycle?: "NEVER_STARTED" | "ACTIVE" | "EXPIRED" | "BLOCKED_BY_PAID" | null;
+  trialConsumed?: boolean;
+  trialExpiresAt?: string | null;
   registrationIpAddress?: string;
   registrationDevice?: string;
   registrationDeviceType?: string;
@@ -198,6 +199,12 @@ export interface UserDetailResponse extends UserSummaryResponse {
   qrCount: number;
   activeMenuCount: number;
   purchases: PurchaseResponse[];
+  emailVerified?: boolean | null;
+}
+
+export interface PasswordResetResponse {
+  temporaryPassword: string;
+  emailed: boolean;
 }
 
 export interface ImpersonateResponse {
@@ -219,6 +226,24 @@ export interface ExtendTrialResponse {
   packageName: string;
   expiresAt: string;
   daysAdded: number;
+}
+
+export interface EndTrialResponse {
+  purchaseId: number;
+  packageName: string;
+  expiresAt: string;
+}
+
+export interface ReactivatePackageRequest {
+  days: number;
+}
+
+export interface PackageLifecycleResponse {
+  purchaseId: number;
+  packageName: string;
+  status: PurchaseStatus;
+  expiresAt: string;
+  daysAdded?: number | null;
 }
 
 export type PaymentStatus = "INITIATED" | "SUCCESS" | "FAILURE" | "REFUNDED";
