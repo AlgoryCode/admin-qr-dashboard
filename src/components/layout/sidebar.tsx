@@ -10,6 +10,7 @@ import {
   MessageSquare,
   Package,
   Settings,
+  Ticket,
   Users,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -20,6 +21,7 @@ const mainNav = [
   { href: "/kullanicilar", label: "Kullanıcılar", icon: Users },
   { href: "/odemeler", label: "Ödemeler", icon: CreditCard },
   { href: "/paketler", label: "Paket ve Ürünler", icon: Package },
+  { href: "/kuponlar", label: "Kuponlar", icon: Ticket },
   { href: "/musteri-geri-bildirimleri", label: "Müşteri Geri Bildirimleri", icon: MessageSquare },
   { href: "/raporlar", label: "Raporlar", icon: BarChart3 },
   { href: "/site-analitik", label: "Site Analitiği", icon: Globe },
