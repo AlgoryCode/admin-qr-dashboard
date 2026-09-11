@@ -304,3 +304,38 @@ export interface PaymentRefundResponse {
   status?: string | null;
   purchaseId?: number | null;
 }
+
+export type CouponDiscountType = "PERCENT" | "AMOUNT";
+export type CouponStatus = "UNUSED" | "RESERVED" | "USED" | "REVOKED";
+
+export interface CouponResponse {
+  id: number;
+  code: string;
+  discountType: CouponDiscountType;
+  discountValue: number;
+  expiresAt: string;
+  validFrom?: string | null;
+  status: CouponStatus;
+  reservedPurchaseId?: number | null;
+  usedPurchaseId?: number | null;
+  usedByUserId?: number | null;
+  usedAt?: string | null;
+  createdByAdminId?: number | null;
+  createdAt: string;
+}
+
+export interface CouponCreateRequest {
+  code: string;
+  discountType: CouponDiscountType;
+  discountValue: number;
+  expiresAt: string;
+}
+
+export interface CouponPageResponse {
+  content: CouponResponse[];
+  page: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
+  hasNext: boolean;
+}
