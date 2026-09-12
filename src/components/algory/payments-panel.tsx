@@ -320,7 +320,7 @@ export function PaymentsPanel() {
               </TableBody>
             </Table>
 
-            <div className="flex items-center justify-between gap-3">
+            <div className="flex flex-wrap items-center justify-between gap-3">
               <p className="text-xs text-muted-foreground">
                 Sayfa {page + 1}
                 {totalPages > 0 ? ` / ${totalPages}` : ""}

@@ -110,7 +110,7 @@ export function CouponsPanel() {
 
   return (
     <Card className="border-border/60 bg-card/50">
-      <CardHeader className="flex flex-row items-center justify-between gap-3">
+      <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-3">
         <div>
           <CardTitle className="text-base">Kuponlar</CardTitle>
           <CardDescription>Tek kullanımlık indirim kodları</CardDescription>

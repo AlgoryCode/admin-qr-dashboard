@@ -190,7 +190,7 @@ export function SiteAnalyticsPanel() {
           </p>
         </div>
         <Select value={days} onValueChange={handleDaysChange}>
-          <SelectTrigger className="w-[180px]">
+          <SelectTrigger className="w-full sm:w-[180px]">
             <SelectValue placeholder="Dönem" />
           </SelectTrigger>
           <SelectContent>

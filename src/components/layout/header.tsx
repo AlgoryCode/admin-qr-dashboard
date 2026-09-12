@@ -2,11 +2,12 @@
 
 import { Bell, LogOut, Search, Settings, User } from "lucide-react";
 import Link from "next/link";
-import { ProjectSelector } from "./project-selector";
+import { usePathname } from "next/navigation";
+import { MobileNav } from "./mobile-nav";
 import { ThemeToggle } from "./theme-toggle";
+import { getActiveNavLabel } from "./nav-config";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Separator } from "@/components/ui/separator";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -21,14 +22,17 @@ import { getUserDisplayName, getUserInitials } from "@/lib/auth/session";
 
 export function Header() {
   const { user, logout } = useAuth();
+  const pathname = usePathname();
 
   return (
-    <header className="sticky top-0 z-40 flex h-14 items-center gap-4 border-b border-border/60 bg-background/80 px-4 backdrop-blur-xl lg:px-6">
-      <ProjectSelector />
+    <header className="sticky top-0 z-40 flex h-14 items-center gap-2 border-b border-border/60 bg-background/80 px-3 backdrop-blur-xl sm:gap-4 sm:px-4 lg:px-6">
+      <MobileNav />
 
-      <Separator orientation="vertical" className="hidden h-5 sm:block bg-border/60" />
+      <p className="min-w-0 truncate text-sm font-medium lg:hidden">
+        {getActiveNavLabel(pathname)}
+      </p>
 
-      <div className="hidden flex-1 sm:block">
+      <div className="hidden flex-1 lg:block">
         <div className="relative max-w-md">
           <Search className="absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
           <input
@@ -39,7 +43,7 @@ export function Header() {
         </div>
       </div>
 
-      <div className="ml-auto flex items-center gap-2">
+      <div className="ml-auto flex shrink-0 items-center gap-1 sm:gap-2">
         <ThemeToggle />
         <Button variant="ghost" size="icon" className="size-9 text-muted-foreground">
           <Bell className="size-4" />

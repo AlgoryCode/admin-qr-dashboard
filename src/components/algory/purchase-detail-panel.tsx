@@ -147,14 +147,14 @@ export function PurchaseDetailPanel({
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-3">
+      <div className="flex min-w-0 items-center gap-3">
         <Button variant="outline" size="sm" render={<Link href={`/kullanicilar/${userId}`} />}>
           <ArrowLeft />
           Geri
         </Button>
-        <div>
-          <h1 className="text-lg font-semibold">{summary.packageName}</h1>
-          <p className="text-sm text-muted-foreground">
+        <div className="min-w-0">
+          <h1 className="truncate text-lg font-semibold">{summary.packageName}</h1>
+          <p className="truncate text-sm text-muted-foreground">
             Satın alım #{summary.purchaseId} · {summary.packageCode}
           </p>
         </div>

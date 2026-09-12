@@ -295,7 +295,7 @@ export function PlatformFeedbackPanel() {
             </Table>
           </div>
 
-          <div className="flex items-center justify-between text-sm text-muted-foreground">
+          <div className="flex flex-wrap items-center justify-between gap-2 text-sm text-muted-foreground">
             <span>{totalElements} kayıt</span>
             <div className="flex items-center gap-2">
               <Button

@@ -1,7 +1,7 @@
 import type { ImpersonateResponse } from "@/lib/api/types";
 
 export const MEMBER_APP_URL = (
-  process.env.NEXT_PUBLIC_MEMBER_APP_URL ?? "http://localhost:3000"
+  process.env.NEXT_PUBLIC_MEMBER_APP_URL?.trim() || "http://localhost:3000"
 ).replace(/\/$/, "");
 
 export function buildMemberImpersonationUrl(response: ImpersonateResponse): string {

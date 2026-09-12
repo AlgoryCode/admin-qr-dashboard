@@ -168,16 +168,16 @@ export function PaymentDetailPanel({ conversationId }: { conversationId: string 
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-3">
+        <div className="flex min-w-0 items-center gap-3">
           <Button variant="outline" size="sm" render={<Link href="/odemeler" />}>
             <ArrowLeft />
             Geri
           </Button>
-          <div>
-            <h1 className="text-lg font-semibold">
+          <div className="min-w-0">
+            <h1 className="truncate text-lg font-semibold">
               {payment.buyerName || payment.buyerEmail || payment.conversationId}
             </h1>
-            <p className="text-sm text-muted-foreground">
+            <p className="truncate text-sm text-muted-foreground">
               {payment.conversationId}
             </p>
           </div>

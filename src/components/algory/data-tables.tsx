@@ -34,7 +34,7 @@ export function ProductsTable() {
   return (
     <>
       <Card className="border-border/60 bg-card/50">
-        <CardHeader className="flex flex-row items-center justify-between">
+        <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-3">
           <div>
             <CardTitle className="text-base">Ürünler</CardTitle>
           </div>
@@ -112,7 +112,7 @@ export function PackagesTable() {
   return (
     <>
       <Card className="border-border/60 bg-card/50">
-        <CardHeader className="flex flex-row items-center justify-between">
+        <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-3">
           <div>
             <CardTitle className="text-base">Paketler</CardTitle>
           </div>

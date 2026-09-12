@@ -28,7 +28,9 @@ export function ProjectBanner() {
           <div className="flex size-9 items-center justify-center rounded-lg border border-border/60 bg-muted/50">
             <QrCode className="size-5 text-foreground/80" />
           </div>
-          <h1 className="text-2xl font-semibold tracking-tight">{project.name}</h1>
+          <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">
+            {project.name}
+          </h1>
         </div>
         <Badge variant={status.variant} className="font-normal">
           {status.label}
