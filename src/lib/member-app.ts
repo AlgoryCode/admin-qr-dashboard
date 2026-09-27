@@ -1,10 +1,28 @@
 import type { ImpersonateResponse } from "@/lib/api/types";
 
-export const MEMBER_APP_URL = (
-  process.env.NEXT_PUBLIC_MEMBER_APP_URL?.trim() || "http://localhost:3000"
-).replace(/\/$/, "");
+let cachedMemberAppUrl: string | null = null;
 
-export function buildMemberImpersonationUrl(response: ImpersonateResponse): string {
+async function resolveMemberAppUrl(): Promise<string> {
+  if (cachedMemberAppUrl) {
+    return cachedMemberAppUrl;
+  }
+  const response = await fetch("/api/member-app-url", { credentials: "same-origin" });
+  if (!response.ok) {
+    throw new Error("Üye uygulaması adresi alınamadı.");
+  }
+  const data = (await response.json()) as { url?: string };
+  const url = data.url?.trim().replace(/\/$/, "");
+  if (!url) {
+    throw new Error("Üye uygulaması adresi yapılandırılmamış.");
+  }
+  cachedMemberAppUrl = url;
+  return url;
+}
+
+export function buildMemberImpersonationUrl(
+  memberAppUrl: string,
+  response: ImpersonateResponse,
+): string {
   const hash = new URLSearchParams({
     accessToken: response.accessToken,
     refreshToken: response.refreshToken,
@@ -14,9 +32,11 @@ export function buildMemberImpersonationUrl(response: ImpersonateResponse): stri
     ...(response.lastName ? { lastName: response.lastName } : {}),
   }).toString();
 
-  return `${MEMBER_APP_URL}/auth/impersonate#${hash}`;
+  return `${memberAppUrl.replace(/\/$/, "")}/auth/impersonate#${hash}`;
 }
 
-export function openMemberImpersonation(response: ImpersonateResponse) {
-  window.open(buildMemberImpersonationUrl(response), "_blank", "noopener,noreferrer");
+export async function openMemberImpersonation(response: ImpersonateResponse) {
+  const memberAppUrl = await resolveMemberAppUrl();
+  const url = buildMemberImpersonationUrl(memberAppUrl, response);
+  window.open(url, "_blank", "noopener,noreferrer");
 }

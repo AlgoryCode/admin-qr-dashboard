@@ -1,7 +1,9 @@
 # syntax=docker/dockerfile:1
+#
+# Configure via Coolify (Build + Runtime). Do not bake app URLs into the image.
+# Runtime: MEMBER_APP_URL=https://dashboard.algorycode.com
+# Runtime: API_PROXY_TARGET=https://prod.qrapi.algorycode.com
 
-# Production servers (Coolify/x86_64): linux/amd64
-# Mac build: docker build --platform linux/amd64 ...
 ARG TARGETPLATFORM=linux/amd64
 
 FROM --platform=$TARGETPLATFORM node:20-alpine AS base
@@ -16,8 +18,6 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-ARG NEXT_PUBLIC_MEMBER_APP_URL=https://qr.algorycode.com
-ENV NEXT_PUBLIC_MEMBER_APP_URL=$NEXT_PUBLIC_MEMBER_APP_URL
 ENV NEXT_TELEMETRY_DISABLED=1
 
 RUN npm run build
@@ -29,7 +29,6 @@ ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV PORT=3000
 ENV HOSTNAME=0.0.0.0
-ENV API_PROXY_TARGET=https://prod.qrapi.algorycode.com
 
 RUN addgroup --system --gid 1001 nodejs \
   && adduser --system --uid 1001 nextjs
