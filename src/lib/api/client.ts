@@ -84,7 +84,12 @@ export async function rawRequest<T>(
 
   if (res.status === 204) return undefined as T;
   const text = await res.text();
-  return text ? (JSON.parse(text) as T) : (undefined as T);
+  if (!text) return undefined as T;
+  try {
+    return JSON.parse(text) as T;
+  } catch {
+    throw new ApiError(502, "API yanıtı geçersiz. Sayfayı yenileyip tekrar deneyin.");
+  }
 }
 
 export async function apiRequest<T>(
@@ -153,5 +158,10 @@ export async function apiRequest<T>(
 
   if (res.status === 204) return undefined as T;
   const text = await res.text();
-  return text ? (JSON.parse(text) as T) : (undefined as T);
+  if (!text) return undefined as T;
+  try {
+    return JSON.parse(text) as T;
+  } catch {
+    throw new ApiError(502, "API yanıtı geçersiz. Sayfayı yenileyip tekrar deneyin.");
+  }
 }
