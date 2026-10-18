@@ -4,6 +4,7 @@ export interface JwtClaims {
   jti?: string;
   sub?: string;
   userId?: number;
+  dashboardUserId?: number;
   email?: string;
   firstName?: string;
   lastName?: string;
@@ -76,7 +77,7 @@ export function sessionFromAccessToken(accessToken: string): SessionUser {
   }
 
   const email = resolveEmail(claims);
-  const userId = claims.userId;
+  const userId = claims.userId ?? claims.dashboardUserId;
 
   if (!email || userId == null) {
     throw new Error("Token içinde oturum bilgileri eksik");

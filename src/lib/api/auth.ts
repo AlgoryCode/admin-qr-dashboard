@@ -8,7 +8,7 @@ import {
 import type { LoginRequest, TokenPair } from "./types";
 
 export async function login(credentials: LoginRequest): Promise<SessionUser> {
-  const data = await rawRequest<TokenPair>("/admin/auth/sessions", {
+  const data = await rawRequest<TokenPair>("/dashboard/auth/login", {
     method: "POST",
     body: JSON.stringify(credentials),
   });
@@ -21,7 +21,7 @@ export async function refreshTokens(): Promise<TokenPair | null> {
   if (!refreshToken) return null;
 
   try {
-    const data = await rawRequest<TokenPair>("/admin/auth/sessions/refresh", {
+    const data = await rawRequest<TokenPair>("/dashboard/auth/refresh", {
       method: "POST",
       body: JSON.stringify({ refreshToken }),
     });

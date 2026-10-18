@@ -41,6 +41,7 @@ const userRoleLabels: Record<string, string> = {
 const authProviderLabels: Record<string, string> = {
   BASIC: "E-posta",
   GOOGLE: "Google",
+  MOBILE_GOOGLE: "Google (Mobil)",
 };
 
 const projectStatusMap: Record<string, StatusDisplay> = {
