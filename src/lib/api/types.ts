@@ -210,7 +210,7 @@ export interface PasswordResetResponse {
 export interface ImpersonateResponse {
   accessToken: string;
   refreshToken: string;
-  userId: number;
+  merchantId: number;
   email: string;
   firstName: string;
   lastName?: string;

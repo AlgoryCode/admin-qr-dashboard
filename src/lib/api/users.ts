@@ -39,10 +39,15 @@ export function updateUser(id: number, data: UserUpdateRequest) {
   });
 }
 
-export function impersonateUser(id: number) {
-  return apiRequest<ImpersonateResponse>(`/admin/users/${id}/impersonation-sessions`, {
-    method: "POST",
-  });
+export async function impersonateUser(id: number): Promise<ImpersonateResponse> {
+  const data = await apiRequest<ImpersonateResponse & { userId?: number }>(
+    `/admin/users/${id}/impersonation-sessions`,
+    { method: "POST" },
+  );
+  return {
+    ...data,
+    merchantId: data.merchantId ?? data.userId ?? id,
+  };
 }
 
 export function extendUserTrial(id: number, data: ExtendTrialRequest) {
