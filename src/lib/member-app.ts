@@ -19,14 +19,26 @@ async function resolveMemberAppUrl(): Promise<string> {
   return url;
 }
 
+function resolveMerchantId(response: ImpersonateResponse): number {
+  if (Number.isFinite(response.merchantId)) {
+    return response.merchantId;
+  }
+  const legacy = (response as ImpersonateResponse & { userId?: number }).userId;
+  if (legacy != null && Number.isFinite(legacy)) {
+    return legacy;
+  }
+  throw new Error("API yanıtında merchantId eksik.");
+}
+
 export function buildMemberImpersonationUrl(
   memberAppUrl: string,
   response: ImpersonateResponse,
 ): string {
+  const merchantId = resolveMerchantId(response);
   const hash = new URLSearchParams({
     accessToken: response.accessToken,
     refreshToken: response.refreshToken,
-    userId: String(response.userId),
+    merchantId: String(merchantId),
     email: response.email,
     firstName: response.firstName,
     ...(response.lastName ? { lastName: response.lastName } : {}),
@@ -35,8 +47,22 @@ export function buildMemberImpersonationUrl(
   return `${memberAppUrl.replace(/\/$/, "")}/auth/impersonate#${hash}`;
 }
 
-export async function openMemberImpersonation(response: ImpersonateResponse) {
+export async function openMemberImpersonation(
+  response: ImpersonateResponse,
+  targetWindow: Window | null = null,
+) {
   const memberAppUrl = await resolveMemberAppUrl();
   const url = buildMemberImpersonationUrl(memberAppUrl, response);
-  window.open(url, "_blank", "noopener,noreferrer");
+
+  if (targetWindow && !targetWindow.closed) {
+    targetWindow.location.replace(url);
+    return;
+  }
+
+  const opened = window.open(url, "_blank", "noopener,noreferrer");
+  if (!opened) {
+    throw new Error(
+      "Tarayıcı yeni sekmeyi engelledi. Pop-up izni verip tekrar deneyin.",
+    );
+  }
 }

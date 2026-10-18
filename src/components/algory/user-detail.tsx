@@ -180,10 +180,13 @@ export function UserDetailPanel({ userId }: { userId: number }) {
     setImpersonateError(null);
     setIsImpersonating(true);
 
+    const memberTab = window.open("about:blank", "_blank", "noopener,noreferrer");
+
     try {
       const response = await impersonateUser(userId);
-      openMemberImpersonation(response);
+      await openMemberImpersonation(response, memberTab);
     } catch (err) {
+      memberTab?.close();
       if (err instanceof ApiError) {
         setImpersonateError(err.message);
       } else if (err instanceof Error) {
