@@ -1,6 +1,8 @@
+import { gunzipSync } from "node:zlib";
 import { NextRequest, NextResponse } from "next/server";
 
 const STRIP_REQUEST_HEADERS = new Set([
+  "accept-encoding",
   "connection",
   "keep-alive",
   "proxy-authenticate",
@@ -41,6 +43,7 @@ async function proxy(req: NextRequest, path: string[]): Promise<Response> {
     }
   });
   headers.set("accept", "application/json");
+  headers.set("accept-encoding", "identity");
 
   const init: RequestInit = {
     method: req.method,
@@ -63,17 +66,28 @@ async function proxy(req: NextRequest, path: string[]): Promise<Response> {
     );
   }
 
-  const body = await upstream.arrayBuffer();
-  const responseHeaders = new Headers();
-  const contentType = upstream.headers.get("content-type");
-  if (contentType) {
-    responseHeaders.set("content-type", contentType);
+  let body = Buffer.from(await upstream.arrayBuffer());
+  if (body.length >= 2 && body[0] === 0x1f && body[1] === 0x8b) {
+    body = gunzipSync(body);
   }
 
-  return new NextResponse(body, {
+  const contentType = upstream.headers.get("content-type") ?? "";
+  if (contentType.includes("application/json") && upstream.status !== 204) {
+    try {
+      const json = JSON.parse(body.toString("utf8")) as unknown;
+      return NextResponse.json(json, { status: upstream.status });
+    } catch {
+      return NextResponse.json(
+        { message: "API yanıtı okunamadı" },
+        { status: 502 }
+      );
+    }
+  }
+
+  return new NextResponse(new Uint8Array(body), {
     status: upstream.status,
     statusText: upstream.statusText,
-    headers: responseHeaders,
+    headers: contentType ? { "content-type": contentType } : undefined,
   });
 }
 
