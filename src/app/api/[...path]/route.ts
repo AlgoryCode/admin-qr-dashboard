@@ -63,20 +63,14 @@ async function proxy(req: NextRequest, path: string[]): Promise<Response> {
     );
   }
 
+  const body = await upstream.arrayBuffer();
   const responseHeaders = new Headers();
-  upstream.headers.forEach((value, key) => {
-    const lower = key.toLowerCase();
-    if (
-      lower === "transfer-encoding" ||
-      lower === "connection" ||
-      lower.startsWith("access-control-")
-    ) {
-      return;
-    }
-    responseHeaders.set(key, value);
-  });
+  const contentType = upstream.headers.get("content-type");
+  if (contentType) {
+    responseHeaders.set("content-type", contentType);
+  }
 
-  return new NextResponse(upstream.body, {
+  return new NextResponse(body, {
     status: upstream.status,
     statusText: upstream.statusText,
     headers: responseHeaders,

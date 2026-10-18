@@ -155,7 +155,7 @@ export interface PurchaseSummaryResponse {
 }
 
 export type UserRole = "USER" | "WAITER";
-export type AuthProvider = "BASIC" | "GOOGLE";
+export type AuthProvider = "BASIC" | "GOOGLE" | "MOBILE_GOOGLE";
 
 export interface UserUpdateRequest {
   firstName: string;

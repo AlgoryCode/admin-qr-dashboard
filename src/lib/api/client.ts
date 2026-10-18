@@ -34,7 +34,7 @@ async function tryRefreshTokens(): Promise<boolean> {
 
   try {
     const data = await rawRequest<{ accessToken: string; refreshToken: string }>(
-      "/admin/auth/sessions/refresh",
+      "/dashboard/auth/refresh",
       {
         method: "POST",
         body: JSON.stringify({ refreshToken }),
@@ -63,7 +63,15 @@ export async function rawRequest<T>(
     ...options.headers,
   };
 
-  const res = await fetch(`${API_BASE}${path}`, { ...options, headers });
+  let res: Response;
+  try {
+    res = await fetch(`${API_BASE}${path}`, { ...options, headers });
+  } catch {
+    throw new ApiError(
+      0,
+      "Sunucuya ulaşılamadı. Ağ bağlantınızı kontrol edin veya sayfayı yenileyin."
+    );
+  }
 
   if (!res.ok) {
     const body: ApiErrorBody = await res.json().catch(() => ({}));
@@ -91,13 +99,21 @@ export async function apiRequest<T>(
     ...options.headers,
   };
 
-  const res = await fetch(`${API_BASE}${path}`, { ...options, headers });
+  let res: Response;
+  try {
+    res = await fetch(`${API_BASE}${path}`, { ...options, headers });
+  } catch {
+    throw new ApiError(
+      0,
+      "Sunucuya ulaşılamadı. Ağ bağlantınızı kontrol edin veya sayfayı yenileyin."
+    );
+  }
 
   if (
     res.status === 401 &&
     !retried &&
     !path.startsWith("/auth/") &&
-    !path.startsWith("/admin/auth/")
+    !path.startsWith("/dashboard/auth/")
   ) {
     if (!refreshPromise) {
       refreshPromise = tryRefreshTokens().finally(() => {
