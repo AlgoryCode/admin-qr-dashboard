@@ -5,9 +5,6 @@ export function getAdminPackages() {
   return apiRequest<PlanPackageResponse[]>("/admin/packages");
 }
 
-export function getPublicPackages() {
-  return apiRequest<PlanPackageResponse[]>("/packages");
-}
 
 export function getPackage(id: number) {
   return apiRequest<PlanPackageResponse>(`/admin/packages/${id}`);

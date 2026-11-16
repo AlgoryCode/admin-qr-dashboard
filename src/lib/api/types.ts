@@ -1,4 +1,5 @@
-export type ProductCode = "QR_CREATE";
+/** Upper-snake product identifier, e.g. QR_MENU, SMART_REPORTING. */
+export type ProductCode = string;
 
 export type PurchaseStatus = "ACTIVE" | "EXPIRED" | "CANCELLED";
 
@@ -17,10 +18,23 @@ export interface TokenPair {
   refreshToken: string;
 }
 
+export type ProductType = "PACKAGE_PRODUCT" | "ADDON_PRODUCT";
+export type ProductBillingType = "RECURRING" | "ONE_TIME";
+
+/** A sellable right. `code` never changes; `featureCode` is what entitlements and access checks use. */
 export interface ProductRequest {
   code: ProductCode;
   name: string;
   description?: string;
+  type: ProductType;
+  featureCode?: string;
+  scopeCode?: string;
+  unitPrice: number;
+  vatRate?: number;
+  billingType: ProductBillingType;
+  consumable: boolean;
+  addonPurchasable: boolean;
+  requiresCountSync: boolean;
   active: boolean;
 }
 
@@ -28,24 +42,44 @@ export interface ProductResponse {
   id: number;
   code: ProductCode;
   name: string;
-  description?: string;
+  description?: string | null;
+  type: ProductType;
+  featureCode?: string | null;
+  scopeCode?: string | null;
+  unitPrice: number;
+  vatRate: number;
+  priceWithVat: number;
+  billingType: ProductBillingType;
+  consumable: boolean;
+  addonPurchasable: boolean;
+  requiresCountSync: boolean;
   active: boolean;
+  /** How many packages include this product. */
+  packageCount: number;
   createdAt: string;
+  updatedAt?: string | null;
 }
 
 export interface PlanPackageItemRequest {
   productId: number;
   quantity: number;
+  unlimited: boolean;
 }
 
+/** Package price is the sum of its lines (with VAT); discounts and the yearly price are set here. */
 export interface PlanPackageRequest {
   code: string;
   name: string;
   description?: string;
-  price: number;
+  features?: string[];
+  monthlyDiscount?: number;
+  yearlyPrice?: number | null;
+  yearlyDiscount?: number;
   currency?: string;
-  active: boolean;
   validityDays: number;
+  priority?: number;
+  purchasable: boolean;
+  active: boolean;
   items: PlanPackageItemRequest[];
 }
 
@@ -54,20 +88,37 @@ export interface PlanPackageItemResponse {
   productId: number;
   productCode: ProductCode;
   productName: string;
+  featureCode?: string | null;
+  productType: ProductType;
   quantity: number;
+  unlimited: boolean;
+  lineTotal: number;
 }
 
 export interface PlanPackageResponse {
   id: number;
   code: string;
   name: string;
-  description?: string;
+  description?: string | null;
+  features: string[];
+  subtotal: number;
+  vatAmount: number;
   price: number;
+  monthlyDiscount: number;
+  effectiveMonthlyPrice: number;
+  yearlyPrice?: number | null;
+  yearlyDiscount: number;
+  effectiveYearlyPrice?: number | null;
   currency: string;
-  active: boolean;
   validityDays: number;
+  priority: number;
+  purchasable: boolean;
+  active: boolean;
+  /** Free and trial packages: always active, never sold. */
+  systemManaged: boolean;
   items: PlanPackageItemResponse[];
   createdAt: string;
+  updatedAt?: string | null;
 }
 
 export interface PurchaseResponse {
@@ -222,14 +273,14 @@ export interface ExtendTrialRequest {
 }
 
 export interface ExtendTrialResponse {
-  purchaseId: number;
+  purchaseId: number | null;
   packageName: string;
   expiresAt: string;
   daysAdded: number;
 }
 
 export interface EndTrialResponse {
-  purchaseId: number;
+  purchaseId: number | null;
   packageName: string;
   expiresAt: string;
 }
@@ -239,7 +290,7 @@ export interface ReactivatePackageRequest {
 }
 
 export interface PackageLifecycleResponse {
-  purchaseId: number;
+  purchaseId: number | null;
   packageName: string;
   status: PurchaseStatus;
   expiresAt: string;
