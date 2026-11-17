@@ -4,11 +4,13 @@ import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2, Search } from "lucide-react";
 import { listUsers, USERS_PAGE_SIZE } from "@/lib/api/users";
+import { listAllTags, type TagCount } from "@/lib/api/members";
 import { ApiError } from "@/lib/api/client";
 import type { UserSummaryResponse } from "@/lib/api/types";
 import { getAuthProviderLabel, getUserRoleLabel } from "@/lib/labels/tr";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { ExportButton } from "./export-button";
 import {
   Card,
   CardContent,
@@ -37,6 +39,7 @@ function formatDate(value: string) {
 type ListParams = {
   page: number;
   query?: string;
+  tag?: string;
 };
 
 export function UsersSearchPanel() {
@@ -50,16 +53,35 @@ export function UsersSearchPanel() {
   const [hasNext, setHasNext] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [knownTags, setKnownTags] = useState<TagCount[]>([]);
+
+  useEffect(() => {
+    let cancelled = false;
+    listAllTags()
+      .then((tags) => {
+        if (!cancelled) setKnownTags(tags);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const activeQuery = listParams.query ?? "";
-  const isSearchMode = Boolean(activeQuery);
+  const activeTag = listParams.tag ?? "";
+  const isSearchMode = Boolean(activeQuery) || Boolean(activeTag);
 
   const fetchUsers = useCallback(async (params: ListParams) => {
     setIsLoading(true);
     setError(null);
 
     try {
-      const result = await listUsers(params.page, USERS_PAGE_SIZE, params.query);
+      const result = await listUsers(
+        params.page,
+        USERS_PAGE_SIZE,
+        params.query,
+        params.tag,
+      );
       setUsers(result.content);
       setPage(result.page);
       setTotalElements(result.totalElements);
@@ -90,7 +112,11 @@ export function UsersSearchPanel() {
   function handleSearch(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const trimmed = query.trim();
-    setListParams({ page: 0, query: trimmed || undefined });
+    setListParams((p) => ({
+      page: 0,
+      query: trimmed || undefined,
+      tag: p.tag,
+    }));
   }
 
   function handleClearSearch() {
@@ -101,13 +127,22 @@ export function UsersSearchPanel() {
   return (
     <Card className="border-border/60 bg-card/50">
       <CardHeader>
-        <CardTitle className="text-base">Kullanıcılar</CardTitle>
-        <CardDescription>
-          Kayıt tarihine göre yeniden eskiye · sayfa başına {USERS_PAGE_SIZE} kayıt
-        </CardDescription>
+        <div className="flex flex-wrap items-start justify-between gap-2">
+          <div>
+            <CardTitle className="text-base">Kullanıcılar</CardTitle>
+            <CardDescription>
+              Kayıt tarihine göre yeniden eskiye · sayfa başına{" "}
+              {USERS_PAGE_SIZE} kayıt
+            </CardDescription>
+          </div>
+          <ExportButton kind="members" />
+        </div>
       </CardHeader>
       <CardContent className="space-y-4">
-        <form onSubmit={handleSearch} className="flex flex-wrap gap-2 sm:max-w-md">
+        <form
+          onSubmit={handleSearch}
+          className="flex flex-wrap gap-2 sm:max-w-md"
+        >
           <div className="relative w-full sm:flex-1">
             <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
             <Input
@@ -144,6 +179,37 @@ export function UsersSearchPanel() {
           )}
         </form>
 
+        {knownTags.length > 0 ? (
+          <div className="flex flex-wrap items-center gap-1.5">
+            <span className="text-xs text-muted-foreground">Etiket:</span>
+            {knownTags.map((t) => {
+              const active = activeTag === t.tag;
+              return (
+                <button
+                  key={t.tag}
+                  type="button"
+                  aria-pressed={active}
+                  onClick={() =>
+                    setListParams((p) => ({
+                      page: 0,
+                      query: p.query,
+                      tag: active ? undefined : t.tag,
+                    }))
+                  }
+                  className={
+                    active
+                      ? "rounded-md bg-foreground px-2 py-0.5 text-xs text-background"
+                      : "rounded-md bg-muted px-2 py-0.5 text-xs text-muted-foreground hover:text-foreground"
+                  }
+                >
+                  {t.tag}{" "}
+                  <span className="tabular-nums opacity-70">{t.count}</span>
+                </button>
+              );
+            })}
+          </div>
+        ) : null}
+
         {error && (
           <div className="rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
             {error}
@@ -155,7 +221,7 @@ export function UsersSearchPanel() {
         {!isLoading && users.length === 0 && !error && (
           <p className="text-sm text-muted-foreground">
             {isSearchMode
-              ? `"${activeQuery}" için sonuç bulunamadı.`
+              ? `${activeQuery ? `"${activeQuery}"` : `"${activeTag}" etiketi`} için sonuç bulunamadı.`
               : "Henüz kullanıcı kaydı yok."}
           </p>
         )}
@@ -164,7 +230,7 @@ export function UsersSearchPanel() {
           <>
             <p className="text-xs text-muted-foreground">
               {isSearchMode
-                ? `"${activeQuery}" için ${totalElements} sonuç`
+                ? `${activeQuery ? `"${activeQuery}"` : `"${activeTag}" etiketi`} için ${totalElements} sonuç`
                 : `Toplam ${totalElements} kullanıcı`}
             </p>
             <Table>
@@ -192,17 +258,35 @@ export function UsersSearchPanel() {
                       </code>
                     </TableCell>
                     <TableCell className="font-medium">
-                      {user.displayName || `${user.firstName} ${user.lastName ?? ""}`.trim()}
+                      {user.displayName ||
+                        `${user.firstName} ${user.lastName ?? ""}`.trim()}
+                      {user.tags && user.tags.length > 0 ? (
+                        <span className="ml-2 inline-flex flex-wrap gap-1 align-middle">
+                          {user.tags.map((t) => (
+                            <Badge
+                              key={t}
+                              variant="secondary"
+                              className="h-4 px-1.5 text-[10px] font-normal"
+                            >
+                              {t}
+                            </Badge>
+                          ))}
+                        </span>
+                      ) : null}
                     </TableCell>
                     <TableCell>{user.email}</TableCell>
                     <TableCell className="text-muted-foreground">
                       {user.phone ?? "—"}
                     </TableCell>
                     <TableCell>
-                      <Badge variant="outline">{getAuthProviderLabel(user.provider)}</Badge>
+                      <Badge variant="outline">
+                        {getAuthProviderLabel(user.provider)}
+                      </Badge>
                     </TableCell>
                     <TableCell>
-                      <Badge variant="secondary">{getUserRoleLabel(user.role)}</Badge>
+                      <Badge variant="secondary">
+                        {getUserRoleLabel(user.role)}
+                      </Badge>
                     </TableCell>
                     <TableCell className="text-muted-foreground">
                       {formatDate(user.createdAt)}

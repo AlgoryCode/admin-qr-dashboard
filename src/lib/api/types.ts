@@ -9,7 +9,8 @@ export interface ApiErrorBody {
 }
 
 export interface LoginRequest {
-  email: string;
+  /** Username, or an e-mail address for accounts that have no username. */
+  username: string;
   password: string;
 }
 
@@ -20,6 +21,17 @@ export interface TokenPair {
 
 export type ProductType = "PACKAGE_PRODUCT" | "ADDON_PRODUCT";
 export type ProductBillingType = "RECURRING" | "ONE_TIME";
+
+/** A feature or panel scope code the application checks, with a label for the admin form. */
+export interface CatalogCodeOption {
+  code: string;
+  label: string;
+}
+
+export interface CatalogCodes {
+  features: CatalogCodeOption[];
+  scopes: CatalogCodeOption[];
+}
 
 /** A sellable right. `code` never changes; `featureCode` is what entitlements and access checks use. */
 export interface ProductRequest {
@@ -34,7 +46,6 @@ export interface ProductRequest {
   billingType: ProductBillingType;
   consumable: boolean;
   addonPurchasable: boolean;
-  requiresCountSync: boolean;
   active: boolean;
 }
 
@@ -52,7 +63,6 @@ export interface ProductResponse {
   billingType: ProductBillingType;
   consumable: boolean;
   addonPurchasable: boolean;
-  requiresCountSync: boolean;
   active: boolean;
   /** How many packages include this product. */
   packageCount: number;
@@ -116,6 +126,7 @@ export interface PlanPackageResponse {
   active: boolean;
   /** Free and trial packages: always active, never sold. */
   systemManaged: boolean;
+  currentVersionId: number | null;
   items: PlanPackageItemResponse[];
   createdAt: string;
   updatedAt?: string | null;
@@ -225,6 +236,8 @@ export interface UserSummaryResponse {
   provider: AuthProvider;
   role: UserRole;
   createdAt: string;
+  /** Admin labels. */
+  tags?: string[];
 }
 
 export interface UserPageResponse {
@@ -238,7 +251,8 @@ export interface UserPageResponse {
 
 export interface UserDetailResponse extends UserSummaryResponse {
   updatedAt: string;
-  trialLifecycle?: "NEVER_STARTED" | "ACTIVE" | "EXPIRED" | "BLOCKED_BY_PAID" | null;
+  trialLifecycle?:
+    "NEVER_STARTED" | "ACTIVE" | "EXPIRED" | "BLOCKED_BY_PAID" | null;
   trialConsumed?: boolean;
   trialExpiresAt?: string | null;
   registrationIpAddress?: string;
@@ -389,4 +403,96 @@ export interface CouponPageResponse {
   totalElements: number;
   totalPages: number;
   hasNext: boolean;
+}
+
+// --- Billing standing (admin /admin/billing/accounts) ---
+
+export type BillingStanding = "PAID" | "DUE_SOON" | "OVERDUE" | "LAPSED";
+
+export type BillingAccountSort =
+  "DUE_ASC" | "DUE_DESC" | "AMOUNT_DESC" | "LAST_PAID_DESC";
+
+export interface BillingAccountRow {
+  merchantId: number;
+  merchantName: string | null;
+  email: string | null;
+  phone: string | null;
+  purchaseId: number;
+  packageCode: string | null;
+  packageName: string | null;
+  billingPeriod: "MONTHLY" | "YEARLY" | "ONE_TIME" | null;
+  paymentStyle: "ONE_TIME" | "SUBSCRIPTION" | null;
+  autoRenew: boolean;
+  cancelAtPeriodEnd: boolean;
+  standing: BillingStanding;
+  subscriptionStatus: string | null;
+  renewalAmount: number | null;
+  outstandingAmount: number | null;
+  currency: string | null;
+  lastPaidAt: string | null;
+  periodEndsAt: string | null;
+  daysUntilDue: number | null;
+  graceEndsAt: string | null;
+  cardBrand: string | null;
+  cardLastFour: string | null;
+  collectionCaseId: number | null;
+  collectionStatus: CollectionStatus | null;
+  collectionStatusAt: string | null;
+}
+
+export interface BillingAccountSummary {
+  paid: number;
+  dueSoon: number;
+  overdue: number;
+  lapsed: number;
+  dueSoonAmount: number;
+  overdueAmount: number;
+  dueWithinDays: number;
+  openCollections: number;
+}
+
+export interface BillingAccountPage {
+  content: BillingAccountRow[];
+  summary: BillingAccountSummary;
+  page: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
+  hasNext: boolean;
+}
+
+// --- Collection follow-up (admin /admin/billing/collections) ---
+
+export type CollectionStatus =
+  | "AWAITING_PAYMENT"
+  | "REMINDED"
+  | "UNPAID"
+  | "FORMAL_NOTICE"
+  | "PAYMENT_PLAN"
+  | "LEGAL_FOLLOW_UP"
+  | "PAID"
+  | "WRITTEN_OFF"
+  | "CANCELLED";
+
+export interface CollectionEventResponse {
+  id: number;
+  fromStatus: CollectionStatus | null;
+  toStatus: CollectionStatus;
+  note: string | null;
+  actor: string;
+  createdAt: string;
+}
+
+export interface CollectionCaseResponse {
+  id: number;
+  merchantId: number;
+  purchaseId: number | null;
+  status: CollectionStatus;
+  amount: number | null;
+  currency: string | null;
+  dueSince: string | null;
+  openedAt: string;
+  statusAt: string;
+  closedAt: string | null;
+  events: CollectionEventResponse[];
 }

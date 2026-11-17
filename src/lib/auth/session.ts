@@ -47,12 +47,17 @@ export function clearSession() {
   localStorage.removeItem(USER_KEY);
 }
 
-export function persistSession(accessToken: string, refreshToken: string): SessionUser {
+export function persistSession(
+  accessToken: string,
+  refreshToken: string,
+): SessionUser {
   const user = sessionFromAccessToken(accessToken);
 
   if (!isAdminRole(user.role) && !hasAdminRole(user.roles)) {
     clearSession();
-    throw new Error("Bu panele yalnızca ADMIN rolüne sahip kullanıcılar erişebilir");
+    throw new Error(
+      "Bu panele yalnızca ADMIN rolüne sahip kullanıcılar erişebilir",
+    );
   }
 
   setTokens(accessToken, refreshToken);

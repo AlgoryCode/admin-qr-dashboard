@@ -16,7 +16,11 @@ import {
   needsRefresh,
   readSession,
 } from "@/lib/auth/session";
-import { login as apiLogin, refreshTokens } from "@/lib/api/auth";
+import {
+  login as apiLogin,
+  loginWithMfa as apiLoginWithMfa,
+  refreshTokens,
+} from "@/lib/api/auth";
 import { ApiError } from "@/lib/api/client";
 import type { LoginRequest } from "@/lib/api/types";
 
@@ -25,7 +29,9 @@ interface AuthContextValue {
   isLoading: boolean;
   isAuthenticated: boolean;
   isAdmin: boolean;
-  login: (credentials: LoginRequest) => Promise<void>;
+  /** Resolves with an MFA token when a second step is needed. */
+  login: (credentials: LoginRequest) => Promise<{ mfaToken: string } | null>;
+  loginWithMfa: (mfaToken: string, code: string) => Promise<void>;
   logout: () => void;
 }
 
@@ -80,9 +86,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const login = useCallback(
     async (credentials: LoginRequest) => {
       try {
-        const session = await apiLogin(credentials);
-        setUser(session);
+        const result = await apiLogin(credentials);
+        if ("mfaRequired" in result) return { mfaToken: result.mfaToken };
+        setUser(result);
         router.replace("/");
+        return null;
       } catch (err) {
         clearSession();
         setUser(null);
@@ -98,7 +106,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         throw new Error("Giriş yapılamadı.");
       }
     },
-    [router]
+    [router],
+  );
+
+  const loginWithMfa = useCallback(
+    async (mfaToken: string, code: string) => {
+      try {
+        const session = await apiLoginWithMfa(mfaToken, code);
+        setUser(session);
+        router.replace("/");
+      } catch (err) {
+        if (err instanceof Error) throw new Error(err.message);
+        throw new Error("Doğrulanamadı.");
+      }
+    },
+    [router],
   );
 
   const value = useMemo<AuthContextValue>(
@@ -106,11 +128,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       user,
       isLoading,
       isAuthenticated: !!user,
-      isAdmin: user ? isAdminRole(user.role) || hasAdminRole(user.roles) : false,
+      isAdmin: user
+        ? isAdminRole(user.role) || hasAdminRole(user.roles)
+        : false,
       login,
+      loginWithMfa,
       logout,
     }),
-    [user, isLoading, login, logout]
+    [user, isLoading, login, loginWithMfa, logout],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

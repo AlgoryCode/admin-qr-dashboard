@@ -1,5 +1,5 @@
 import { apiRequest } from "./client";
-import type { ProductRequest, ProductResponse } from "./types";
+import type { CatalogCodes, ProductRequest, ProductResponse } from "./types";
 
 export function getProducts() {
   return apiRequest<ProductResponse[]>("/admin/products");
@@ -21,4 +21,9 @@ export function updateProduct(id: number, data: ProductRequest) {
     method: "PUT",
     body: JSON.stringify(data),
   });
+}
+
+/** Feature and scope codes a product may carry; anything else is rejected by the API. */
+export function getCatalogCodes() {
+  return apiRequest<CatalogCodes>("/admin/catalog-codes");
 }

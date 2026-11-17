@@ -1,30 +1,15 @@
-import { ProjectBanner } from "@/components/dashboard/project-banner";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { SecuritySettings } from "@/components/algory/security-settings";
 
 export default function SettingsPage() {
   return (
-    <div className="space-y-8">
-      <ProjectBanner />
-      <div className="grid gap-4 md:grid-cols-2">
-        {[
-          { title: "Genel Ayarlar", desc: "Platform adı, logo ve görünürlük ayarları" },
-          { title: "Ödeme Entegrasyonu", desc: "PayTR ve fatura yapılandırması" },
-          { title: "QR Ayarları", desc: "Varsayılan QR stili, domain ve yönlendirme" },
-          { title: "Bildirimler", desc: "E-posta ve webhook bildirim tercihleri" },
-        ].map((item) => (
-          <Card key={item.title} className="border-border/60 bg-card/50">
-            <CardHeader>
-              <CardTitle className="text-base">{item.title}</CardTitle>
-              <CardDescription>{item.desc}</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground">
-                API entegrasyonu sonrası aktif olacak.
-              </p>
-            </CardContent>
-          </Card>
-        ))}
+    <div className="space-y-5">
+      <div>
+        <h1 className="text-xl font-semibold tracking-tight">Ayarlar</h1>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Hesabın, şifren, iki adımlı doğrulama ve açık oturumların.
+        </p>
       </div>
+      <SecuritySettings />
     </div>
   );
 }

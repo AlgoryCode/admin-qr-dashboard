@@ -14,11 +14,17 @@ import type {
 
 const DEFAULT_PAGE_SIZE = 10;
 
-export function listUsers(page = 0, size = DEFAULT_PAGE_SIZE, query?: string) {
+export function listUsers(
+  page = 0,
+  size = DEFAULT_PAGE_SIZE,
+  query?: string,
+  tag?: string,
+) {
   const params = new URLSearchParams({
     page: String(page),
     size: String(size),
   });
+  if (tag) params.set("tag", tag);
 
   const trimmed = query?.trim();
   if (trimmed) {
@@ -39,7 +45,9 @@ export function updateUser(id: number, data: UserUpdateRequest) {
   });
 }
 
-export async function impersonateUser(id: number): Promise<ImpersonateResponse> {
+export async function impersonateUser(
+  id: number,
+): Promise<ImpersonateResponse> {
   const data = await apiRequest<ImpersonateResponse & { userId?: number }>(
     `/admin/users/${id}/impersonation-sessions`,
     { method: "POST" },
@@ -71,7 +79,10 @@ export function deactivateUserPackage(id: number) {
   });
 }
 
-export function reactivateUserPackage(id: number, data: ReactivatePackageRequest) {
+export function reactivateUserPackage(
+  id: number,
+  data: ReactivatePackageRequest,
+) {
   return apiRequest<PackageLifecycleResponse>(`/admin/users/${id}/package`, {
     method: "PATCH",
     body: JSON.stringify({ status: "ACTIVE", days: data.days }),
@@ -85,9 +96,12 @@ export function sendUserEmailVerification(id: number) {
 }
 
 export function resetUserPassword(id: number) {
-  return apiRequest<PasswordResetResponse>(`/admin/users/${id}/password-resets`, {
-    method: "POST",
-  });
+  return apiRequest<PasswordResetResponse>(
+    `/admin/users/${id}/password-resets`,
+    {
+      method: "POST",
+    },
+  );
 }
 
 export { DEFAULT_PAGE_SIZE as USERS_PAGE_SIZE };

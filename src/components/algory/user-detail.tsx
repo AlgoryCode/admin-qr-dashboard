@@ -4,10 +4,16 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Loader2, LogIn } from "lucide-react";
-import { getUser, impersonateUser, extendUserTrial, updateUser } from "@/lib/api/users";
+import {
+  getUser,
+  impersonateUser,
+  extendUserTrial,
+  updateUser,
+} from "@/lib/api/users";
 import { ApiError } from "@/lib/api/client";
 import type { UserDetailResponse } from "@/lib/api/types";
 import { openMemberImpersonation } from "@/lib/member-app";
+import { Member360 } from "./member-360";
 import { UserCredentialsCard } from "@/components/algory/user-credentials-card";
 import {
   getAuthProviderLabel,
@@ -164,7 +170,9 @@ export function UserDetailPanel({ userId }: { userId: number }) {
       setSaveSuccess(true);
     } catch (err) {
       if (err instanceof ApiError) {
-        const fieldErrors = err.errors ? Object.values(err.errors).join(", ") : "";
+        const fieldErrors = err.errors
+          ? Object.values(err.errors).join(", ")
+          : "";
         setFormError(fieldErrors || err.message);
       } else if (err instanceof Error) {
         setFormError(err.message);
@@ -180,7 +188,11 @@ export function UserDetailPanel({ userId }: { userId: number }) {
     setImpersonateError(null);
     setIsImpersonating(true);
 
-    const memberTab = window.open("about:blank", "_blank", "noopener,noreferrer");
+    const memberTab = window.open(
+      "about:blank",
+      "_blank",
+      "noopener,noreferrer",
+    );
 
     try {
       const response = await impersonateUser(userId);
@@ -248,8 +260,10 @@ export function UserDetailPanel({ userId }: { userId: number }) {
     return (
       <Card className="border-border/60 bg-card/50">
         <CardContent className="space-y-4 pt-6">
-          <p className="text-sm text-destructive">{error ?? "Kullanıcı bulunamadı."}</p>
-          <Button variant="outline" render={<Link href="/kullanicilar" />}>
+          <p className="text-sm text-destructive">
+            {error ?? "Kullanıcı bulunamadı."}
+          </p>
+          <Button variant="outline" nativeButton={false} render={<Link href="/kullanicilar" />}>
             <ArrowLeft />
             Kullanıcı aramaya dön
           </Button>
@@ -264,7 +278,11 @@ export function UserDetailPanel({ userId }: { userId: number }) {
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center gap-3">
-        <Button variant="outline" size="sm" render={<Link href="/kullanicilar" />}>
+        <Button
+          variant="outline"
+          size="sm"
+          nativeButton={false} render={<Link href="/kullanicilar" />}
+        >
           <ArrowLeft />
           Geri
         </Button>
@@ -303,6 +321,8 @@ export function UserDetailPanel({ userId }: { userId: number }) {
         <p className="text-sm text-destructive">{impersonateError}</p>
       )}
 
+      <Member360 userId={user.id} />
+
       <div className="grid gap-4 lg:grid-cols-[minmax(280px,340px)_1fr] lg:items-start">
         <Card className="border-border/60 bg-card/50 lg:sticky lg:top-[4.5rem]">
           <CardHeader className="pb-3">
@@ -317,7 +337,9 @@ export function UserDetailPanel({ userId }: { userId: number }) {
                   <Input
                     id="user-firstName"
                     value={form.firstName}
-                    onChange={(e) => setForm({ ...form, firstName: e.target.value })}
+                    onChange={(e) =>
+                      setForm({ ...form, firstName: e.target.value })
+                    }
                     required
                     autoComplete="off"
                   />
@@ -327,7 +349,9 @@ export function UserDetailPanel({ userId }: { userId: number }) {
                   <Input
                     id="user-lastName"
                     value={form.lastName}
-                    onChange={(e) => setForm({ ...form, lastName: e.target.value })}
+                    onChange={(e) =>
+                      setForm({ ...form, lastName: e.target.value })
+                    }
                     autoComplete="off"
                   />
                 </div>
@@ -335,15 +359,15 @@ export function UserDetailPanel({ userId }: { userId: number }) {
 
               <div className="space-y-1.5">
                 <Label htmlFor="user-email">E-posta</Label>
-                  <Input
-                    id="user-email"
-                    type="email"
-                    value={form.email}
-                    onChange={(e) => setForm({ ...form, email: e.target.value })}
-                    required
-                    autoComplete="off"
-                    disabled={user.provider !== "BASIC"}
-                  />
+                <Input
+                  id="user-email"
+                  type="email"
+                  value={form.email}
+                  onChange={(e) => setForm({ ...form, email: e.target.value })}
+                  required
+                  autoComplete="off"
+                  disabled={user.provider !== "BASIC"}
+                />
               </div>
 
               <div className="space-y-1.5">
@@ -363,15 +387,21 @@ export function UserDetailPanel({ userId }: { userId: number }) {
               <div className="grid gap-2 text-xs text-muted-foreground">
                 <div className="flex justify-between gap-2">
                   <span>Rol</span>
-                  <span className="text-foreground">{getUserRoleLabel(user.role)}</span>
+                  <span className="text-foreground">
+                    {getUserRoleLabel(user.role)}
+                  </span>
                 </div>
                 <div className="flex justify-between gap-2">
                   <span>Provider</span>
-                  <span className="text-foreground">{getAuthProviderLabel(user.provider)}</span>
+                  <span className="text-foreground">
+                    {getAuthProviderLabel(user.provider)}
+                  </span>
                 </div>
                 <div className="flex justify-between gap-2">
                   <span>Son güncelleme</span>
-                  <span className="text-foreground">{formatDateShort(user.updatedAt)}</span>
+                  <span className="text-foreground">
+                    {formatDateShort(user.updatedAt)}
+                  </span>
                 </div>
               </div>
 
@@ -439,13 +469,18 @@ export function UserDetailPanel({ userId }: { userId: number }) {
 
           <Card className="border-border/60 bg-card/50">
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium">Deneme Yönetimi</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                Deneme Yönetimi
+              </CardTitle>
               <CardDescription className="text-xs">
                 Ultimate deneme süresini uzatın veya yeni deneme başlatın
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <form onSubmit={handleExtendTrial} className="flex flex-wrap items-end gap-3">
+              <form
+                onSubmit={handleExtendTrial}
+                className="flex flex-wrap items-end gap-3"
+              >
                 <div className="space-y-1.5">
                   <Label htmlFor="trial-days">Eklenecek gün</Label>
                   <Input
@@ -471,28 +506,39 @@ export function UserDetailPanel({ userId }: { userId: number }) {
                   )}
                 </Button>
               </form>
-              {trialError && <p className="mt-3 text-sm text-destructive">{trialError}</p>}
+              {trialError && (
+                <p className="mt-3 text-sm text-destructive">{trialError}</p>
+              )}
               {trialSuccess && !trialError && (
-                <p className="mt-3 text-sm text-emerald-600 dark:text-emerald-400">{trialSuccess}</p>
+                <p className="mt-3 text-sm text-emerald-600 dark:text-emerald-400">
+                  {trialSuccess}
+                </p>
               )}
             </CardContent>
           </Card>
 
           <Card className="border-border/60 bg-card/50">
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium">Kayıt Bilgisi</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                Kayıt Bilgisi
+              </CardTitle>
             </CardHeader>
             <CardContent className="grid gap-3 pb-4 text-sm sm:grid-cols-3">
               <StatItem label="IP" value={user.registrationIpAddress ?? "—"} />
               <StatItem label="Cihaz" value={user.registrationDevice ?? "—"} />
-              <StatItem label="Cihaz Tipi" value={user.registrationDeviceType ?? "—"} />
+              <StatItem
+                label="Cihaz Tipi"
+                value={user.registrationDeviceType ?? "—"}
+              />
             </CardContent>
           </Card>
 
           <Card className="border-border/60 bg-card/50">
             <CardHeader className="pb-2">
               <div className="flex items-center justify-between gap-2">
-                <CardTitle className="text-sm font-medium">Paket Geçmişi</CardTitle>
+                <CardTitle className="text-sm font-medium">
+                  Paket Geçmişi
+                </CardTitle>
                 <CardDescription className="text-xs">
                   {user.purchases.length} kayıt
                 </CardDescription>
@@ -500,7 +546,9 @@ export function UserDetailPanel({ userId }: { userId: number }) {
             </CardHeader>
             <CardContent className="pb-4">
               {user.purchases.length === 0 ? (
-                <p className="text-sm text-muted-foreground">Paket geçmişi yok.</p>
+                <p className="text-sm text-muted-foreground">
+                  Paket geçmişi yok.
+                </p>
               ) : (
                 <div className="overflow-x-auto">
                   <Table>
@@ -510,20 +558,26 @@ export function UserDetailPanel({ userId }: { userId: number }) {
                         <TableHead>Paket</TableHead>
                         <TableHead>Tutar</TableHead>
                         <TableHead>Durum</TableHead>
-                        <TableHead className="hidden md:table-cell">Satın Alma</TableHead>
-                        <TableHead className="hidden lg:table-cell">Bitiş</TableHead>
+                        <TableHead className="hidden md:table-cell">
+                          Satın Alma
+                        </TableHead>
+                        <TableHead className="hidden lg:table-cell">
+                          Bitiş
+                        </TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {user.purchases.map((purchase) => {
-                        const status = getPurchaseStatusDisplay(purchase.status);
+                        const status = getPurchaseStatusDisplay(
+                          purchase.status,
+                        );
                         return (
                           <TableRow
                             key={purchase.id}
                             className="cursor-pointer hover:bg-muted/50"
                             onClick={() =>
                               router.push(
-                                `/kullanicilar/${userId}/satinalimlar/${purchase.id}`
+                                `/kullanicilar/${userId}/satinalimlar/${purchase.id}`,
                               )
                             }
                           >
@@ -546,7 +600,10 @@ export function UserDetailPanel({ userId }: { userId: number }) {
                               {purchase.price} {purchase.currency}
                             </TableCell>
                             <TableCell>
-                              <Badge variant={status.variant} className="text-[10px]">
+                              <Badge
+                                variant={status.variant}
+                                className="text-[10px]"
+                              >
                                 {status.label}
                               </Badge>
                             </TableCell>
