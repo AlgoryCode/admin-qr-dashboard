@@ -102,7 +102,7 @@ export function PurchaseDetailPanel({
       <Card className="border-border/60 bg-card/50">
         <CardContent className="space-y-4 pt-6">
           <p className="text-sm text-destructive">{error ?? "Satın alım bulunamadı."}</p>
-          <Button variant="outline" render={<Link href={`/kullanicilar/${userId}`} />}>
+          <Button variant="outline" nativeButton={false} render={<Link href={`/kullanicilar/${userId}`} />}>
             <ArrowLeft />
             Kullanıcıya dön
           </Button>
@@ -148,7 +148,7 @@ export function PurchaseDetailPanel({
   return (
     <div className="space-y-6">
       <div className="flex min-w-0 items-center gap-3">
-        <Button variant="outline" size="sm" render={<Link href={`/kullanicilar/${userId}`} />}>
+        <Button variant="outline" size="sm" nativeButton={false} render={<Link href={`/kullanicilar/${userId}`} />}>
           <ArrowLeft />
           Geri
         </Button>

@@ -154,7 +154,7 @@ export function PaymentDetailPanel({ conversationId }: { conversationId: string 
       <Card className="border-border/60 bg-card/50">
         <CardContent className="space-y-4 pt-6">
           <p className="text-sm text-destructive">{error ?? "Ödeme bulunamadı."}</p>
-          <Button variant="outline" render={<Link href="/odemeler" />}>
+          <Button variant="outline" nativeButton={false} render={<Link href="/odemeler" />}>
             <ArrowLeft />
             Ödemelere dön
           </Button>
@@ -169,7 +169,7 @@ export function PaymentDetailPanel({ conversationId }: { conversationId: string 
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex min-w-0 items-center gap-3">
-          <Button variant="outline" size="sm" render={<Link href="/odemeler" />}>
+          <Button variant="outline" size="sm" nativeButton={false} render={<Link href="/odemeler" />}>
             <ArrowLeft />
             Geri
           </Button>

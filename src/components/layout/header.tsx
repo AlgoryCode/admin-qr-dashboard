@@ -11,6 +11,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
@@ -45,7 +46,11 @@ export function Header() {
 
       <div className="ml-auto flex shrink-0 items-center gap-1 sm:gap-2">
         <ThemeToggle />
-        <Button variant="ghost" size="icon" className="size-9 text-muted-foreground">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="size-9 text-muted-foreground"
+        >
           <Bell className="size-4" />
         </Button>
 
@@ -66,25 +71,30 @@ export function Header() {
             </Avatar>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56">
-            <DropdownMenuLabel className="font-normal">
-              <div className="flex flex-col gap-1">
-                <span className="text-sm font-medium">
-                  {user ? getUserDisplayName(user) : "Admin"}
-                </span>
-                <span className="text-xs text-muted-foreground">
-                  {user?.email ?? "admin@qr-service"}
-                </span>
-                {user?.roles?.includes("ROLE_ADMIN") && (
-                  <span className="text-[10px] font-medium uppercase tracking-wide text-emerald-600 dark:text-emerald-400">
-                    {getUserRoleLabel("ADMIN")}
+            <DropdownMenuGroup>
+              <DropdownMenuLabel className="font-normal">
+                <div className="flex flex-col gap-1">
+                  <span className="text-sm font-medium">
+                    {user ? getUserDisplayName(user) : "Admin"}
                   </span>
-                )}
-              </div>
-            </DropdownMenuLabel>
+                  <span className="text-xs text-muted-foreground">
+                    {user?.email ?? "admin@qr-service"}
+                  </span>
+                  {user?.roles?.includes("ROLE_ADMIN") && (
+                    <span className="text-[10px] font-medium uppercase tracking-wide text-emerald-600 dark:text-emerald-400">
+                      {getUserRoleLabel("ADMIN")}
+                    </span>
+                  )}
+                </div>
+              </DropdownMenuLabel>
+            </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuItem
               render={
-                <Link href="/settings" className="flex w-full cursor-pointer items-center gap-2" />
+                <Link
+                  href="/settings"
+                  className="flex w-full cursor-pointer items-center gap-2"
+                />
               }
             >
               <Settings className="size-4" />

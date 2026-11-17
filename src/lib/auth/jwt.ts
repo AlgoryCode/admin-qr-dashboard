@@ -1,5 +1,10 @@
 export type UserRole = "ADMIN" | "USER";
 
+/** Admin panel role: ADMIN is the super admin. */
+export type AdminRole = "ADMIN" | "FINANCE" | "SUPPORT" | "VIEWER";
+
+const ADMIN_ROLES: AdminRole[] = ["ADMIN", "FINANCE", "SUPPORT", "VIEWER"];
+
 export interface JwtClaims {
   jti?: string;
   sub?: string;
@@ -24,6 +29,8 @@ export interface SessionUser {
   firstName?: string;
   lastName?: string;
   role: UserRole;
+  /** From ROLE_DASHBOARD_*; tokens issued before roles existed count as ADMIN. */
+  adminRole: AdminRole;
   roles: string[];
   sessionId?: string;
   loggedInAt?: string;
@@ -32,7 +39,10 @@ export interface SessionUser {
 
 function base64UrlDecode(input: string): string {
   const base64 = input.replace(/-/g, "+").replace(/_/g, "/");
-  const padded = base64.padEnd(base64.length + ((4 - (base64.length % 4)) % 4), "=");
+  const padded = base64.padEnd(
+    base64.length + ((4 - (base64.length % 4)) % 4),
+    "=",
+  );
   return atob(padded);
 }
 
@@ -89,11 +99,23 @@ export function sessionFromAccessToken(accessToken: string): SessionUser {
     firstName: claims.firstName,
     lastName: claims.lastName,
     role,
+    adminRole: resolveAdminRole(roles),
     roles,
     sessionId: claims.sessionId ?? claims.jti,
     loggedInAt: claims.loggedInAt,
     accessExpiresAt: claims.accessExpiresAt,
   };
+}
+
+export function resolveAdminRole(roles: string[]): AdminRole {
+  const match = roles
+    .map((r) => r.replace(/^ROLE_DASHBOARD_/, ""))
+    .find(
+      (r): r is AdminRole =>
+        ADMIN_ROLES.includes(r as AdminRole) && r !== "ADMIN",
+    );
+  if (match) return match;
+  return "ADMIN";
 }
 
 export function isAdminRole(role: UserRole | string | undefined): boolean {

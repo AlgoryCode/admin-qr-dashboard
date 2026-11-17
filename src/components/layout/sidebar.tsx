@@ -4,10 +4,19 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { isNavItemActive, mainNav, secondaryNav, type NavItem } from "./nav-config";
+import { useAuth } from "@/context/auth-context";
+import {
+  isNavItemActive,
+  mainNav,
+  secondaryNav,
+  type NavItem,
+} from "./nav-config";
 
 export function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname();
+  const { user } = useAuth();
+  const isSuperAdmin = user?.adminRole === "ADMIN";
+  const visible = (item: NavItem) => !item.adminOnly || isSuperAdmin;
 
   const renderNavItem = (item: NavItem) => {
     const isActive = isNavItemActive(pathname, item.href);
@@ -21,7 +30,7 @@ export function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
           "flex min-h-10 items-center gap-2.5 rounded-md px-2 py-2 text-sm transition-colors",
           isActive
             ? "bg-accent text-foreground font-medium"
-            : "text-muted-foreground hover:bg-accent/50 hover:text-foreground"
+            : "text-muted-foreground hover:bg-accent/50 hover:text-foreground",
         )}
       >
         <item.icon className="size-4 shrink-0" />
@@ -36,11 +45,11 @@ export function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
         <p className="mb-2 px-2 text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
           Ana Menü
         </p>
-        {mainNav.map(renderNavItem)}
+        {mainNav.filter(visible).map(renderNavItem)}
       </nav>
 
       <nav className="mt-4 flex flex-col gap-1 border-t border-border/60 pt-4">
-        {secondaryNav.map(renderNavItem)}
+        {secondaryNav.filter(visible).map(renderNavItem)}
       </nav>
     </>
   );

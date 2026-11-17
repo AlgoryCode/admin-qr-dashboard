@@ -1,4 +1,3 @@
-import { ProjectBanner } from "@/components/dashboard/project-banner";
 import { PurchaseDetailPanel } from "@/components/algory/purchase-detail-panel";
 
 export default async function SatinalimDetayPage({
@@ -12,7 +11,6 @@ export default async function SatinalimDetayPage({
 
   return (
     <div className="space-y-8">
-      <ProjectBanner />
       {Number.isFinite(userId) &&
       userId > 0 &&
       Number.isFinite(purchaseIdNum) &&

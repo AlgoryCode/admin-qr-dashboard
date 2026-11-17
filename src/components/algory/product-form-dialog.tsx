@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Plus } from "lucide-react";
 import { useAlgoryData } from "@/context/algory-data-context";
-import { createProduct, updateProduct } from "@/lib/api/products";
+import { createProduct, getCatalogCodes, updateProduct } from "@/lib/api/products";
 import { ApiError } from "@/lib/api/client";
+import type { CatalogCodeOption, CatalogCodes } from "@/lib/api/types";
 import type {
   ProductBillingType,
   ProductRequest,
@@ -71,7 +72,7 @@ function initialState(product?: ProductResponse | null): FormState {
     name: product?.name ?? "",
     description: product?.description ?? "",
     type: product?.type ?? "PACKAGE_PRODUCT",
-    featureCode: product?.featureCode ?? "",
+    featureCode: product?.featureCode ?? product?.code ?? "",
     scopeCode: product?.scopeCode ?? "",
     unitPrice: product ? String(product.unitPrice) : "0",
     vatRate: product ? String(product.vatRate) : "20",
@@ -91,6 +92,36 @@ export function ProductFormDialog({ open, onOpenChange, product }: ProductFormDi
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const [codes, setCodes] = useState<CatalogCodes | null>(null);
+  const [codesError, setCodesError] = useState(false);
+
+  useEffect(() => {
+    if (!open || codes) return;
+    let cancelled = false;
+    getCatalogCodes()
+      .then((result) => {
+        if (!cancelled) setCodes(result);
+      })
+      .catch(() => {
+        if (!cancelled) setCodesError(true);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [open, codes]);
+
+  const featureOptions = withCurrent(codes?.features ?? [], form.featureCode);
+  const scopeOptions = withCurrent(codes?.scopes ?? [], form.scopeCode);
+
+  function chooseFeature(featureCode: string) {
+    setForm((prev) => {
+      const ownerScope = `${featureCode}_OWNER`;
+      const scopeCode =
+        !prev.scopeCode && codes?.scopes.some((scope) => scope.code === ownerScope) ? ownerScope : prev.scopeCode;
+      return { ...prev, featureCode, scopeCode };
+    });
+  }
+
   function set<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((prev) => ({ ...prev, [key]: value }));
   }
@@ -104,8 +135,8 @@ export function ProductFormDialog({ open, onOpenChange, product }: ProductFormDi
       setError("Kod büyük harf ile başlamalı; yalnızca büyük harf, rakam ve _ içermeli.");
       return;
     }
-    if (featureCode && !CODE_PATTERN.test(featureCode)) {
-      setError("Hak kodu büyük harf ile başlamalı; yalnızca büyük harf, rakam ve _ içermeli.");
+    if (!featureCode) {
+      setError("Bir hak kodu seçin.");
       return;
     }
 
@@ -121,7 +152,6 @@ export function ProductFormDialog({ open, onOpenChange, product }: ProductFormDi
       billingType: form.billingType,
       consumable: form.consumable,
       addonPurchasable: form.addonPurchasable,
-      requiresCountSync: product?.requiresCountSync ?? false,
       active: form.active,
     };
 
@@ -234,28 +264,73 @@ export function ProductFormDialog({ open, onOpenChange, product }: ProductFormDi
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="product-feature">Hak kodu</Label>
-              <Input
-                id="product-feature"
-                value={form.featureCode}
-                onChange={(e) => set("featureCode", e.target.value.toUpperCase())}
-                placeholder={form.code || "Boşsa ürün kodu"}
-                disabled={isEdit && inPackages}
-              />
+              {codesError ? (
+                <Input
+                  id="product-feature"
+                  value={form.featureCode}
+                  onChange={(e) => set("featureCode", e.target.value.toUpperCase())}
+                  disabled={isEdit && inPackages}
+                  placeholder="ONLINE_ORDER"
+                />
+              ) : (
+              <Select
+                value={form.featureCode || null}
+                onValueChange={(v) => v && chooseFeature(v)}
+                disabled={(isEdit && inPackages) || !codes}
+              >
+                <SelectTrigger id="product-feature" className="w-full">
+                  <SelectValue>
+                    {form.featureCode ? optionLabel(featureOptions, form.featureCode) : "Hak seçin"}
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  {featureOptions.map((option) => (
+                    <SelectItem key={option.code} value={option.code}>
+                      {option.label} · {option.code}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              )}
               <p className="text-xs text-muted-foreground">
                 {isEdit && inPackages
                   ? "Paketlerde kullanıldığı için değiştirilemez."
-                  : "Uygulamanın kontrol ettiği hak. Boş bırakılırsa ürün kodu kullanılır."}
+                  : "Uygulamanın kontrol ettiği hak. Yalnızca tanımlı haklar seçilebilir."}
               </p>
             </div>
             <div className="space-y-2">
               <Label htmlFor="product-scope">Erişim kapsamı</Label>
-              <Input
-                id="product-scope"
-                value={form.scopeCode}
-                onChange={(e) => set("scopeCode", e.target.value.toUpperCase())}
-                placeholder="QR_MENU_OWNER"
-              />
-              <p className="text-xs text-muted-foreground">Panelde açılacak ekranlar için (opsiyonel).</p>
+              {codesError ? (
+                <Input
+                  id="product-scope"
+                  value={form.scopeCode}
+                  onChange={(e) => set("scopeCode", e.target.value.toUpperCase())}
+                  placeholder="Boş bırakılabilir"
+                />
+              ) : (
+              <Select
+                value={form.scopeCode || NO_SCOPE}
+                onValueChange={(v) => v && set("scopeCode", v === NO_SCOPE ? "" : v)}
+                disabled={!codes}
+              >
+                <SelectTrigger id="product-scope" className="w-full">
+                  <SelectValue>
+                    {form.scopeCode ? optionLabel(scopeOptions, form.scopeCode) : "Yok"}
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={NO_SCOPE}>Yok</SelectItem>
+                  {scopeOptions.map((option) => (
+                    <SelectItem key={option.code} value={option.code}>
+                      {option.label} · {option.code}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              )}
+              <p className="text-xs text-muted-foreground">
+                {codesError ? "Kod listesi alınamadı; kodu elle yazın. Sunucu tanımsız kodu reddeder." : "Panelde açılacak ekranlar için (opsiyonel)."}
+              </p>
             </div>
           </div>
 
@@ -379,4 +454,17 @@ export function CreateProductButton() {
       <ProductFormDialog key={instance} open={open} onOpenChange={setOpen} />
     </>
   );
+}
+
+const NO_SCOPE = "__none__";
+
+/** Keeps a code saved before the list existed selectable, so editing an old product does not drop it. */
+function withCurrent(options: CatalogCodeOption[], current: string): CatalogCodeOption[] {
+  if (!current || options.length === 0 || options.some((option) => option.code === current)) return options;
+  return [...options, { code: current, label: "Eski kod" }];
+}
+
+function optionLabel(options: CatalogCodeOption[], code: string): string {
+  const option = options.find((candidate) => candidate.code === code);
+  return option ? `${option.label} · ${code}` : code;
 }
